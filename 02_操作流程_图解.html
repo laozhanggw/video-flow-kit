@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一条视频怎么做出来 · 操作流程</title>
+<style>
+  :root{
+    --bg:#F7F6F3; --card:#FFFFFF; --ink:#1F1F1D; --muted:#6B6A66; --line:#E3E1DA;
+    --claude:#1F4E79; --codex:#2F6B4F; --human:#7A6A55; --warn:#B4551F; --warnbg:#FBF0E7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+       line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+  header{padding-bottom:24px;border-bottom:2px solid var(--ink);margin-bottom:32px}
+  h1{font-size:30px;font-weight:600;margin:0 0 10px;letter-spacing:.5px}
+  .sub{color:var(--muted);font-size:15px}
+  h2{font-size:20px;font-weight:600;margin:48px 0 16px;padding-left:12px;border-left:4px solid var(--ink)}
+  h3{font-size:16px;font-weight:600;margin:0 0 8px}
+  p{margin:10px 0}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;font-size:16px}
+  .lead b{color:var(--claude)}
+  .flowbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 8px;overflow-x:auto}
+  .legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;margin:18px 0;overflow:hidden}
+  .card>.head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .num{flex:0 0 34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+       color:#fff;font-weight:600;font-size:16px}
+  .card>.head .t{font-size:17px;font-weight:600}
+  .card>.head .who{margin-left:auto;font-size:12px;color:#fff;padding:3px 10px;border-radius:20px}
+  .card>.body{padding:16px 20px}
+  .row{display:flex;gap:10px;margin:9px 0;font-size:15px}
+  .row .k{flex:0 0 92px;color:var(--muted);font-size:13px;padding-top:2px}
+  .row .v{flex:1}
+  code{background:#F2F1EC;padding:2px 6px;border-radius:4px;font-size:13.5px;
+       font-family:ui-monospace,Consolas,monospace}
+  .check{background:#F2F7F3;border-left:3px solid var(--codex);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:12px;font-size:14.5px}
+  .check b{color:var(--codex)}
+  table{width:100%;border-collapse:collapse;background:var(--card);font-size:14.5px;
+        border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#EFEEE8;font-weight:600;font-size:13.5px;color:#3A3936}
+  tr:last-child td{border-bottom:none}
+  .iron{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+  .iron div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center}
+  .iron .n{font-size:26px;font-weight:600;color:var(--claude);line-height:1.2}
+  .iron .l{font-size:13px;color:var(--muted);margin-top:6px}
+  .warn{background:var(--warnbg);border:1px solid #EAD3C0;border-radius:12px;padding:16px 20px;margin:18px 0}
+  .warn b{color:var(--warn)}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:6px 0}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+  @media(max-width:640px){
+    .iron{grid-template-columns:1fr}
+    .row{flex-direction:column;gap:2px}
+    .row .k{flex:none}
+    h1{font-size:24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>一条视频怎么做出来</h1>
+  <div class="sub">照着点就行，不用懂原理。每一步只做一件事：打开一个文件，整段复制，发给 AI，等它交稿。</div>
+</header>
+
+<div class="lead">
+  <b>先记住这一句：</b>一份规范 ＋ 五个复制框 ＋ 一个批次文件夹 ＝ 一条片子的全部文字。
+  <br>AI 只负责写字，<b>图片和视频要你自己去平台上点生成</b>。
+</div>
+
+<h2>一、整条路长什么样</h2>
+
+<div class="flowbox">
+<svg viewBox="0 0 860 240" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>七段流程</title>
+  <desc>拆解、复刻之后分两路并行做开头和小分镜，再汇合到生产单元、生成、复盘。</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#8C8A83" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="95" width="104" height="56" rx="9" fill="#E6F1FB" stroke="#1F4E79" stroke-width="0.8"/>
+  <text x="72" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#0C447C">①拆解</text>
+  <text x="72" y="136" text-anchor="middle" font-size="11" fill="#185FA5">看片、拆到最细</text>
+
+  <rect x="150" y="95" width="104" height="56" rx="9" fill="#E6F1FB" stroke="#1F4E79" stroke-width="0.8"/>
+  <text x="202" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#0C447C">②复刻</text>
+  <text x="202" y="136" text-anchor="middle" font-size="11" fill="#185FA5">定骨架、出设定书</text>
+
+  <rect x="300" y="32" width="104" height="56" rx="9" fill="#E6F1FB" stroke="#1F4E79" stroke-width="0.8"/>
+  <text x="352" y="55" text-anchor="middle" font-size="13" font-weight="600" fill="#0C447C">③开头</text>
+  <text x="352" y="73" text-anchor="middle" font-size="11" fill="#185FA5">只做 0 到 T 秒</text>
+
+  <rect x="300" y="158" width="104" height="56" rx="9" fill="#EAF3DE" stroke="#2F6B4F" stroke-width="0.8"/>
+  <text x="352" y="181" text-anchor="middle" font-size="13" font-weight="600" fill="#27500A">④小分镜</text>
+  <text x="352" y="199" text-anchor="middle" font-size="11" fill="#3B6D11">T 秒到结尾</text>
+
+  <rect x="450" y="95" width="104" height="56" rx="9" fill="#EAF3DE" stroke="#2F6B4F" stroke-width="0.8"/>
+  <text x="502" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#27500A">⑤生产单元</text>
+  <text x="502" y="136" text-anchor="middle" font-size="11" fill="#3B6D11">转成能导入的包</text>
+
+  <rect x="600" y="95" width="104" height="56" rx="9" fill="#F1EFE8" stroke="#7A6A55" stroke-width="0.8"/>
+  <text x="652" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#444441">⑥生成</text>
+  <text x="652" y="136" text-anchor="middle" font-size="11" fill="#5F5E5A">你去平台点</text>
+
+  <rect x="730" y="95" width="104" height="56" rx="9" fill="#F1EFE8" stroke="#7A6A55" stroke-width="0.8"/>
+  <text x="782" y="118" text-anchor="middle" font-size="13" font-weight="600" fill="#444441">⑦复盘</text>
+  <text x="782" y="136" text-anchor="middle" font-size="11" fill="#5F5E5A">回填数据</text>
+
+  <path d="M124 123L146 123" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M254 116C276 116 278 62 296 62" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M254 130C276 130 278 184 296 184" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M404 60C432 60 428 108 446 112" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M404 186C432 186 428 138 446 134" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M554 123L596 123" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M704 123L726 123" stroke="#8C8A83" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <text x="276" y="150" font-size="11" fill="#8C8A83">这两段</text>
+  <text x="276" y="164" font-size="11" fill="#8C8A83">可同时做</text>
+</svg>
+</div>
+
+<div class="legend">
+  <span><i style="background:#E6F1FB;border:1px solid #1F4E79"></i>用 Claude 做</span>
+  <span><i style="background:#EAF3DE;border:1px solid #2F6B4F"></i>用 Codex 做</span>
+  <span><i style="background:#F1EFE8;border:1px solid #7A6A55"></i>人工做</span>
+</div>
+
+<p>为什么分两个 AI：拆解要看片、复刻要判断、开头要写方案，这些是 Claude 擅长的。小分镜和生产单元要严格按栏位落盘、还要跑检查脚本，那是 Codex 擅长的。<b>不是偏好，是跑出来的分工。</b></p>
+
+<h2>二、开几个对话框（一共五个）</h2>
+
+<table>
+  <tr><th style="width:110px">对话框</th><th style="width:90px">用哪个</th><th>干什么</th><th style="width:150px">什么时候开</th></tr>
+  <tr><td><b>第 1 个</b></td><td>Claude</td><td>① 拆解：把对标拆到最细</td><td>开工第一件事</td></tr>
+  <tr><td><b>第 2 个</b></td><td>Claude</td><td>② 复刻：定骨架、出路数、写设定书</td><td>拆解交完</td></tr>
+  <tr><td><b>第 3 个</b></td><td>Claude</td><td>③ 开头：只做 0 到 T 秒</td><td>设定书定稿后</td></tr>
+  <tr><td><b>第 4 个</b></td><td>Codex</td><td>④ 小分镜：T 秒到结尾</td><td>和 ③ 同时开</td></tr>
+  <tr><td><b>第 5 个</b></td><td>Codex</td><td>⑤ 生产单元：转成能导入的素材包</td><td>③④ 都交完</td></tr>
+</table>
+
+<div class="warn">
+  <b>为什么③④能同时开：</b>T 秒那一刻的样子，在第②段交的《版本设定书》第 4.1 节里已经写死了，两边不用互相等。<b>其余各段必须排队</b>，不许跳。
+</div>
+
+<h2>三、五个对话框，每个怎么操作</h2>
+
+<div class="card">
+  <div class="head"><div class="num" style="background:#1F4E79">1</div>
+    <div class="t">拆解</div><div class="who" style="background:#1F4E79">Claude</div></div>
+  <div class="body">
+    <div class="row"><div class="k">打开这个</div><div class="v"><code>指令\1_拆解.txt</code></div></div>
+    <div class="row"><div class="k">要改什么</div><div class="v">只改最上面那一行：填批次文件夹路径和后缀名。别的一个字不动。</div></div>
+    <div class="row"><div class="k">发什么</div><div class="v">整段复制 + 对标的视频链接（或文件）</div></div>
+    <div class="row"><div class="k">拿回什么</div><div class="v">一个项目文件夹，里面 <code>01_拆解\</code> 有四份表</div></div>
+    <div class="check"><b>你只看一件事：</b>四份表齐不齐。齐了才算完。</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="head"><div class="num" style="background:#1F4E79">2</div>
+    <div class="t">复刻</div><div class="who" style="background:#1F4E79">Claude</div></div>
+  <div class="body">
+    <div class="row"><div class="k">打开这个</div><div class="v"><code>指令\2_复刻.txt</code></div></div>
+    <div class="row"><div class="k">要改什么</div><div class="v">最上面那一行，填项目文件夹路径</div></div>
+    <div class="row"><div class="k">发什么</div><div class="v">整段复制。它会先交一份《微调大纲》给你审。</div></div>
+    <div class="row"><div class="k">拿回什么</div><div class="v">微调大纲 →（你说「定稿」）→ 每个版本一份《版本设定书》</div></div>
+    <div class="check"><b>你只看一页：</b>微调大纲第 0 节那八行判定摘要。看它「为什么改」的理由成不成立。理由只认四类：原片拖沓、原片交代不清、动机变了、AI 做不出来。<b>说不出理由的改动，退回。</b>这一页是整条流程唯一的质量闸门。</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="head"><div class="num" style="background:#1F4E79">3</div>
+    <div class="t">开头（0 到 T 秒）</div><div class="who" style="background:#1F4E79">Claude</div></div>
+  <div class="body">
+    <div class="row"><div class="k">打开这个</div><div class="v"><code>指令\3_开头.txt</code></div></div>
+    <div class="row"><div class="k">要改什么</div><div class="v">最上面那一行</div></div>
+    <div class="row"><div class="k">发什么</div><div class="v">整段复制</div></div>
+    <div class="row"><div class="k">拿回什么</div><div class="v"><code>开头\</code> 下三个文件（开头方案、开头交接、任务记录），<b>外加版本根目录的 <code>共用卡制卡词.md</code> 和 <code>单元\U01.md</code></b>——开头自己那一个单元，这一段就要写好</div></div>
+    <div class="check"><b>你只看两件事：</b>① 它有没有交《开头人读版》——一页纸、大白话、600 字以内，没有就不算交稿。② U01 里切了几刀：<b>生成秒 ＝ T ÷ 0.867，刀数 ＝ 生成秒 ÷ 2</b>。T 11 秒就该 6–7 刀，只写 4 刀就退回——那是每刀 2.75 秒以上，会傻站。</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="head"><div class="num" style="background:#2F6B4F">4</div>
+    <div class="t">小分镜（T 秒到结尾）</div><div class="who" style="background:#2F6B4F">Codex</div></div>
+  <div class="body">
+    <div class="row"><div class="k">打开这个</div><div class="v"><code>指令\4_小分镜.txt</code></div></div>
+    <div class="row"><div class="k">要改什么</div><div class="v">最上面那一行</div></div>
+    <div class="row"><div class="k">发什么</div><div class="v">整段复制。它会交「读到的凭证」（每份必读文件 3 条带数字的事实）。</div></div>
+    <div class="row"><div class="k">拿回什么</div><div class="v"><code>分镜\</code> 下三个文件，外加分镜人读版</div></div>
+    <div class="check"><b>你只看一件事：</b>每一刀有没有写两个秒数——<b>成片秒</b>（剪完占几秒）和<b>素材秒</b>（这个动作真做完要几秒）。只有一个秒数的，退回。</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="head"><div class="num" style="background:#2F6B4F">5</div>
+    <div class="t">生产单元（转成能导入的包）</div><div class="who" style="background:#2F6B4F">Codex</div></div>
+  <div class="body">
+    <div class="row"><div class="k">打开这个</div><div class="v"><code>指令\5_生产单元.txt</code></div></div>
+    <div class="row"><div class="k">要改什么</div><div class="v">最上面那一行</div></div>
+    <div class="row"><div class="k">发什么</div><div class="v">整段复制。它分两段走：<b>先只报单元规划表，你点头之后才写词。</b></div></div>
+    <div class="row"><div class="k">拿回什么</div><div class="v"><code>单元\</code> 里每盒一张卡、共用卡制卡词、导入清单</div></div>
+    <div class="check"><b>你只看一件事：</b>单元规划表里，每一盒是不是装满 13–15 秒、装 6–7 刀。写出 2–3 刀的盒子要它重排——那是傻站的来源。</div>
+  </div>
+</div>
+
+<h2>四、三条铁律（这三条背下来就够用了）</h2>
+
+<div class="iron">
+  <div><div class="n">13–15 秒</div><div class="l">一次生成装满，别只装一半</div></div>
+  <div><div class="n">6–7 刀</div><div class="l">一盒里装几个镜头</div></div>
+  <div><div class="n">约 2 秒</div><div class="l">每个镜头多长</div></div>
+</div>
+
+<p>为什么是这个数：一次给 2 秒，它只够干一件事，干完就得切走，<b>没有时间站着、走过去、擦汗</b>。你以前看到的「铺好了站起来傻站一会儿」，就是因为一个镜头给了 5 秒——活 1 秒干完，剩下 4 秒它只能站着。</p>
+
+<div class="warn">
+  <b>一句话记住：</b>不是镜头太多，是每个镜头太长。<b>刀数不是规定的，是除出来的：生成秒数 ÷ 2。</b>
+</div>
+
+<h2>五、最容易卡住的五个地方</h2>
+
+<table>
+  <tr><th style="width:150px">卡在哪</th><th>怎么办</th></tr>
+  <tr><td>第一次用，指令里的路径不对</td><td>双击 <code>tools\设置本机路径.bat</code>，看到「全部就绪」就好。跑坏了可以再跑一次，不会越跑越乱。</td></tr>
+  <tr><td>AI 只交了个框架</td><td>这套流程里，<b>交框架＝没做完</b>。让它重交。判断办法：看它有没有给出可以直接复制的完整正文，而不是「这里写一段动作描述」。</td></tr>
+  <tr><td>改了指令，但复制出来还是旧的</td><td>你复制的是网页，网页是快照。改完 `指令\*.txt` 要跑 <code>python tools\生成流程导图.py</code>，再核对字数。</td></tr>
+  <tr><td>下游说上游写得前后矛盾</td><td>别让它自己拍。把所有「未裁决」登记到分镜交接最前面那张表，<b>有一行没裁决，下一段不许开工</b>。</td></tr>
+  <tr><td>出来的片子还能看，但不好看</td><td>九成是「某几刀没有真动作可做」。看那几刀：这一刀从头到尾，他手上是不是一直有事在做？只够 0.8 秒的活，就别给 2 秒。</td></tr>
+</table>
+
+<h2>六、每天开工前，先做这三件事</h2>
+
+<ul>
+  <li><b>确认路径。</b>打开 <code>指令\1_拆解.txt</code>，最上面那行路径是不是本机的。是别人电脑上的路径，就先跑一遍配置脚本。</li>
+  <li><b>确认网页是最新的。</b>打开 <code>流程导图.html</code>，看生成时间是不是今天。</li>
+  <li><b>确认口径没被改回去。</b>记住三条：13–15 秒、6–7 刀、约 2 秒。看到「4–10 秒」「2–4 刀」就是旧口径，别照它做。</li>
+</ul>
+
+<footer>
+  <p>这份说明对应的是 <b>2026-10-27 定稿版</b>（对齐阿初口径）。<br>
+  技术细节在 <code>01_给AI的接手指南.md</code>，交给 AI 读；<code>流程导图.html</code> 可以点开逐步看。</p>
+</footer>
+
+</div>
+</body>
+</html>
