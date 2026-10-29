@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>视频生产流程 · 对话版上岗手册</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#fff; --panel2:#fbfcfd;
+  --ink:#15181e; --ink2:#4c5563; --ink3:#8a929e; --ink4:#aab2bd;
+  --line:#e3e7ed; --line2:#eef1f5;
+  --ac:#2563eb; --ac2:#1d4ed8; --ac-bg:#eff4ff; --ac-line:#c3d6fd;
+  --ok:#0f766e; --ok-bg:#effcf8; --ok-line:#a7e8d8;
+  --warn:#b45309; --warn-bg:#fffaeb; --warn-line:#f6dfa4;
+  --bad:#b3261e; --bad-bg:#fef3f2; --bad-line:#f7c9c4;
+  --r:12px;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Cascadia Mono","Microsoft YaHei Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14.5px;line-height:1.72;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--ac);text-decoration:none}
+/* ══════════ 顶栏 ══════════ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:56px;z-index:50;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding:0 22px;
+}
+.topbar .brand{font-weight:700;font-size:14.5px;letter-spacing:.2px}
+.topbar .brand span{color:var(--ink3);font-weight:500;margin-left:8px;font-size:12.5px}
+.topbar .grow{flex:1}
+.topbar button{
+  font-family:inherit;font-size:12.5px;color:var(--ink2);background:#fff;
+  border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;transition:.15s;
+}
+.topbar button:hover{border-color:var(--ac-line);color:var(--ac);background:var(--ac-bg)}
+/* ══════════ 侧栏 ══════════ */
+.side{
+  position:fixed;top:56px;left:0;bottom:0;width:252px;z-index:40;
+  background:var(--panel);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.side-inner{padding:20px 14px 28px}
+.prog{margin:0 6px 20px}
+.prog .lab{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-bottom:7px}
+.prog .lab b{color:var(--ink2);font-weight:650}
+.bar{height:5px;background:var(--line2);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#38bdf8);border-radius:3px;transition:width .35s}
+.nav-t{font-size:10.5px;letter-spacing:1.4px;color:var(--ink4);font-weight:700;margin:16px 10px 8px}
+.nav a{
+  display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;
+  color:var(--ink2);font-size:13px;margin-bottom:1px;border-left:2px solid transparent;
+}
+.nav a:hover{background:#f7f9fc;color:var(--ink)}
+.nav a.on{background:var(--ac-bg);color:var(--ac2);font-weight:600;border-left-color:var(--ac)}
+.nav a .n{
+  width:20px;height:20px;flex:0 0 20px;border-radius:6px;background:var(--line2);
+  color:var(--ink2);font-size:11px;font-weight:700;display:grid;place-items:center;
+  font-family:var(--mono);
+}
+.nav a.on .n{background:var(--ac);color:#fff}
+.nav a .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav a .p{font-size:10.5px;color:var(--ink4);font-family:var(--mono)}
+/* ══════════ 主区 ══════════ */
+.main{margin-left:252px;padding-top:56px}
+.wrap{max-width:1020px;margin:0 auto;padding:0 44px 120px}
+section{padding-top:56px;scroll-margin-top:70px}
+/* 封面 */
+.hero{padding:74px 0 10px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.8px;
+  color:var(--ac2);background:var(--ac-bg);border:1px solid var(--ac-line);
+  padding:4px 11px;border-radius:20px;font-weight:650;
+}
+.hero h1{font-size:36px;line-height:1.32;margin:20px 0 14px;letter-spacing:-.4px;font-weight:750}
+.hero h1 em{font-style:normal;color:var(--ac)}
+.hero p.lead{font-size:16px;color:var(--ink2);max-width:720px;margin:0 0 26px}
+.hero .kw{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.hero .kw div{
+  border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;
+  font-size:12.5px;color:var(--ink2);min-width:150px;
+}
+.hero .kw div b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+/* 章节头 */
+.st-head{margin-bottom:22px}
+.st-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.st-no{
+  width:30px;height:30px;border-radius:9px;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-size:14px;font-weight:700;font-family:var(--mono);
+}
+.st-no.blue{background:var(--ac)}
+.st-eyebrow .lbl{font-size:11.5px;letter-spacing:1.6px;color:var(--ink3);font-weight:700;text-transform:uppercase}
+.st-head h2{font-size:25px;margin:0 0 8px;letter-spacing:-.2px;font-weight:720}
+.st-head .one{font-size:15px;color:var(--ink2);margin:0;max-width:760px}
+.meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.meta span{
+  font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);
+  padding:3.5px 9px;border-radius:6px;font-family:var(--mono);
+}
+.meta span.hi{background:var(--ac-bg);border-color:var(--ac-line);color:var(--ac2);font-weight:600}
+/* 通用块 */
+h3.blk{font-size:15px;margin:34px 0 12px;display:flex;align-items:center;gap:9px;font-weight:700}
+h3.blk .dot{width:6px;height:6px;border-radius:50%;background:var(--ac)}
+h3.blk .hint{font-size:11.5px;font-weight:500;color:var(--ink3);margin-left:2px}
+p{margin:0 0 12px}
+.lead2{font-size:14px;color:var(--ink2)}
+.note,.warn,.bad{
+  border-radius:10px;padding:13px 16px;font-size:13.2px;margin:16px 0;
+  border:1px solid;border-left-width:3px;
+}
+.note{background:var(--ac-bg);border-color:var(--ac-line);color:#1e3a8a}
+.warn{background:var(--warn-bg);border-color:var(--warn-line);color:#78350f}
+.bad{background:var(--bad-bg);border-color:var(--bad-line);color:#7f1d1d}
+.note b,.warn b,.bad b{font-weight:700}
+.note .ttl,.warn .ttl,.bad .ttl{display:block;font-weight:700;margin-bottom:3px;font-size:12px;letter-spacing:.4px}
+/* ══════════ 流程图 ══════════ */
+.flowmap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 22px 20px;margin:22px 0 8px}
+.fm-row{display:flex;align-items:stretch;gap:0}
+.fm-node{
+  flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;
+  background:var(--panel2);position:relative;
+}
+.fm-node b{display:block;font-size:12.5px;font-weight:700;margin-bottom:1px}
+.fm-node i{font-style:normal;font-size:10.5px;color:var(--ink3);font-family:var(--mono)}
+.fm-node .tag{display:block;font-size:10px;color:var(--ink4);margin-top:4px}
+.fm-node.ac{border-color:var(--ac-line);background:var(--ac-bg)}
+.fm-node.ac b{color:var(--ac2)}
+.fm-arrow{flex:0 0 22px;display:grid;place-items:center;color:var(--ink4);font-size:13px}
+.fm-split{display:flex;flex-direction:column;gap:6px;flex:1.35}
+.fm-split .fm-node{padding:8px}
+.fm-split-wrap{display:flex;flex-direction:column;justify-content:center;gap:6px;flex:1.35}
+.fm-cap{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.fm-cap b{color:var(--ink2)}
+/* ══════════ 对话窗 ══════════ */
+.chat{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px -16px rgba(16,24,40,.14);margin:18px 0}
+.chat-bar{
+  height:42px;display:flex;align-items:center;gap:9px;padding:0 14px;
+  background:#fafbfd;border-bottom:1px solid var(--line2);
+}
+.chat-bar .lights{display:flex;gap:5px}
+.chat-bar .lights i{width:9px;height:9px;border-radius:50%;background:#e2e5ea}
+.chat-bar .lights i:nth-child(1){background:#f0b8b3}
+.chat-bar .lights i:nth-child(2){background:#f2dca8}
+.chat-bar .lights i:nth-child(3){background:#b8dfc2}
+.chat-bar .title{font-size:12.5px;color:var(--ink2);font-weight:600}
+.chat-bar .grow{flex:1}
+.chat-bar .pill{font-size:10.5px;color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line);padding:2px 8px;border-radius:20px;font-weight:600}
+.chat-body{padding:20px 18px 18px;background:linear-gradient(#fbfcfe,#fff 60%)}
+.msg{display:flex;gap:10px;margin-bottom:16px;align-items:flex-start}
+.msg:last-child{margin-bottom:0}
+.msg .av{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;color:#fff;margin-top:2px;
+}
+.msg.user{flex-direction:row-reverse}
+.msg.user .av{background:#3f4756}
+.msg.ai .av{background:linear-gradient(135deg,#2563eb,#38bdf8)}
+.msg .body{max-width:calc(100% - 46px);min-width:0}
+.msg.user .body{margin-left:auto}
+.who{font-size:10.5px;color:var(--ink4);margin:0 3px 4px;font-weight:600}
+.msg.user .who{text-align:right}
+.bubble{border-radius:12px;padding:11px 14px;font-size:13.4px;line-height:1.75;word-break:break-word}
+.msg.user .bubble{background:var(--ac);color:#fff;border-top-right-radius:4px}
+.msg.ai .bubble{background:#fff;border:1px solid var(--line);color:var(--ink);border-top-left-radius:4px}
+.bubble p{margin:0 0 7px}
+.bubble p:last-child{margin-bottom:0}
+.bubble .sm{font-size:12px;opacity:.85}
+/* 粘贴块 */
+.paste{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:8px;margin:8px 0 9px;overflow:hidden}
+.paste-h{display:flex;align-items:center;gap:7px;padding:6px 10px;background:rgba(255,255,255,.1);font-size:11px;font-family:var(--mono);letter-spacing:.2px}
+.paste-h .fn{font-weight:700}
+.paste-h .n{opacity:.8}
+.paste-b{padding:8px 10px 0;font-family:var(--mono);font-size:11.2px;line-height:1.75;white-space:pre-wrap;opacity:.95;max-height:104px;overflow:hidden;position:relative}
+.paste-b::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(rgba(37,99,235,0),var(--ac))}
+.paste-f{font-size:10.5px;opacity:.8;padding:4px 10px 7px;font-family:var(--mono)}
+/* 附件 chip */
+.attach{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.attach span{
+  font-size:11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);
+  border-radius:6px;padding:3px 8px;font-family:var(--mono);
+}
+/* AI 进度行 */
+.log{
+  font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:var(--panel2);
+  border:1px solid var(--line2);border-radius:8px;padding:9px 12px;line-height:1.9;
+}
+.log div{display:flex;gap:8px}
+.log .ok{color:var(--ok);font-weight:700}
+.log .path{color:var(--ink3)}
+/* 文件卡 */
+.files{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.file{
+  display:flex;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+  background:#fff;align-items:flex-start;
+}
+.file.must{border-color:var(--ac-line);background:#fdfeff}
+.file .ic{
+  width:26px;height:26px;flex:0 0 26px;border-radius:7px;background:var(--ac-bg);
+  color:var(--ac2);display:grid;place-items:center;font-size:11px;font-weight:700;font-family:var(--mono);
+}
+.file .nm{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:600;word-break:break-all;line-height:1.5}
+.file .ds{font-size:11.5px;color:var(--ink3);line-height:1.55;margin-top:2px}
+/* 表格 */
+.tbl{width:100%;border-collapse:collapse;font-size:12.8px;margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tbl th{background:#f8fafc;text-align:left;font-weight:650;color:var(--ink2);font-size:11.5px;letter-spacing:.3px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--ink2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td b{color:var(--ink)}
+.tbl code,.inline{font-family:var(--mono);font-size:11.8px;background:#f3f5f8;border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:#334155}
+/* 闸门 */
+.gate{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;margin:18px 0}
+.gate-h{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fafbfd;border-bottom:1px solid var(--line2);
+}
+.gate-h .ttl{font-size:13px;font-weight:700}
+.gate-h .sub{font-size:11.5px;color:var(--ink3)}
+.gate-h .grow{flex:1}
+.gate-h .cnt{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+.chk-l{padding:6px 8px 10px}
+.chk{
+  display:flex;gap:11px;align-items:flex-start;padding:9px 10px;border-radius:8px;
+  cursor:pointer;transition:background .12s;
+}
+.chk:hover{background:#f8fafc}
+.chk input{display:none}
+.chk .box{
+  width:17px;height:17px;flex:0 0 17px;border:1.5px solid #cbd3de;border-radius:5px;
+  margin-top:2px;display:grid;place-items:center;transition:.15s;background:#fff;
+}
+.chk .box svg{opacity:0;transform:scale(.6);transition:.15s}
+.chk .tx{font-size:13.2px;line-height:1.68;color:var(--ink)}
+.chk .tx small{display:block;font-size:11.8px;color:var(--ink3);margin-top:2px;line-height:1.6}
+.chk input:checked + .box{background:var(--ok);border-color:var(--ok)}
+.chk input:checked + .box svg{opacity:1;transform:scale(1)}
+.chk input:checked ~ .tx{color:var(--ink3)}
+.chk input:checked ~ .tx b{color:var(--ink3);font-weight:600}
+/* 结论条 */
+.verdict{display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:14px 16px;margin:16px 0;border:1px solid}
+.verdict.go{background:var(--ok-bg);border-color:var(--ok-line)}
+.verdict.stop{background:var(--bad-bg);border-color:var(--bad-line)}
+.verdict .ic{font-size:15px;line-height:1.5;font-weight:700}
+.verdict.go .ic{color:var(--ok)}
+.verdict.stop .ic{color:var(--bad)}
+.verdict .c b{display:block;font-size:13px;margin-bottom:2px}
+.verdict .c{font-size:12.8px;color:var(--ink2)}
+/* 真实样例 */
+details.sample{margin:14px 0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+details.sample summary{
+  cursor:pointer;padding:11px 15px;font-size:12.8px;font-weight:600;color:var(--ink2);
+  list-style:none;display:flex;align-items:center;gap:9px;background:#fbfcfd;
+}
+details.sample summary::-webkit-details-marker{display:none}
+details.sample summary::before{
+  content:"+";width:16px;height:16px;border-radius:4px;background:var(--line2);color:var(--ink2);
+  display:grid;place-items:center;font-size:12px;font-family:var(--mono);flex:0 0 16px;
+}
+details.sample[open] summary::before{content:"–"}
+details.sample summary .fn{font-family:var(--mono);font-size:11.5px;color:var(--ink3);font-weight:500}
+details.sample .paper{
+  padding:14px 18px;border-top:1px solid var(--line2);font-size:12.4px;line-height:1.85;color:#33404f;
+  white-space:pre-wrap;font-family:var(--mono);max-height:340px;overflow:auto;background:#fff;
+}
+/* 体检单 */
+.report{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;margin:16px 0}
+.report-h{padding:14px 18px 12px;border-bottom:1px solid var(--line2)}
+.report-h .t{font-size:14px;font-weight:750;letter-spacing:.3px}
+.report-h .s{font-size:11.5px;color:var(--ink3);font-family:var(--mono);margin-top:3px}
+.report-b{padding:6px 10px}
+.rrow{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;font-size:12.8px}
+.rrow:hover{background:#fafbfc}
+.rrow .st{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+.rrow .nm{flex:0 0 108px;font-weight:600;color:var(--ink)}
+.rrow .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:5px;flex:0 0 auto}
+.rrow .rs{font-size:11.5px;color:var(--ink3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g{background:#10b981}.g-t{background:var(--ok-bg);color:var(--ok)}
+.r{background:#ef4444}.r-t{background:var(--bad-bg);color:var(--bad)}
+.y{background:#cbd5e1}.y-t{background:#f1f5f9;color:var(--ink3)}
+.report-f{padding:11px 18px;border-top:1px solid var(--line2);font-size:13px;font-weight:700;color:var(--ok);background:#fcfffe}
+/* 步骤条 */
+.steps{counter-reset:s;margin:18px 0}
+.step{display:flex;gap:14px;padding:13px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{
+  counter-increment:s;width:24px;height:24px;flex:0 0 24px;border-radius:50%;
+  background:var(--ac-bg);color:var(--ac2);display:grid;place-items:center;font-size:11.5px;
+  font-weight:700;font-family:var(--mono);
+}
+.step .n::before{content:counter(s)}
+.step .c{font-size:13.2px;color:var(--ink2);flex:1}
+.step .c b{color:var(--ink);display:block;margin-bottom:2px;font-size:13.4px}
+/* 数字卡 */
+.nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;margin:16px 0}
+.num{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff}
+.num b{display:block;font-family:var(--mono);font-size:20px;font-weight:750;color:var(--ac2);letter-spacing:-.5px}
+.num span{display:block;font-size:11.8px;color:var(--ink3);margin-top:3px;line-height:1.5}
+/* 坑 */
+.pit{border-left:3px solid var(--bad-line);padding:2px 0 2px 15px;margin:16px 0}
+.pit .h{font-size:13.2px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.pit .d{font-size:12.6px;color:var(--ink2)}
+.pit .d code{font-family:var(--mono);font-size:11.5px;background:#f5f6f9;padding:1px 5px;border-radius:4px}
+/* 复制按钮 */
+.copy{
+  font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:#fff;
+  color:var(--ink2);border-radius:5px;padding:1px 6px;cursor:pointer;margin-left:4px;
+}
+.copy:hover{border-color:var(--ac-line);color:var(--ac)}
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);opacity:0;pointer-events:none;
+  background:#111827;color:#fff;font-size:12.5px;padding:8px 16px;border-radius:8px;z-index:99;transition:.22s;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+/* 页脚 */
+footer{border-top:1px solid var(--line);margin-top:60px;padding:26px 0 0;font-size:11.8px;color:var(--ink4);line-height:1.9}
+footer b{color:var(--ink3);font-weight:600}
+/* 响应 */
+@media (max-width:1180px){
+  .side{width:216px}.main{margin-left:216px}.wrap{padding:0 28px 100px}
+}
+@media (max-width:900px){
+  .side{display:none}.main{margin-left:0}.wrap{padding:0 18px 80px}
+  .hero h1{font-size:27px}.files{grid-template-columns:1fr}
+  .fm-row{flex-wrap:wrap;gap:8px}.fm-arrow{display:none}
+}
+/* 打印 */
+@media print{
+  .topbar,.side,.toast,.copy{display:none!important}
+  .main{margin-left:0;padding-top:0}
+  .wrap{max-width:none;padding:0}
+  body{background:#fff;font-size:11pt}
+  section{padding-top:24px;page-break-inside:avoid}
+  .chat,.gate,.report,.flowmap{box-shadow:none;page-break-inside:avoid}
+  details.sample{display:block}
+  details.sample .paper{max-height:none;overflow:visible}
+  .chk .box{border-color:#999}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">视频生产流程 · 上岗手册<span>对话版 / 2026-10-29</span></div>
+  <div class="grow"></div>
+  <a href="流程导图.html" id="backToFlow" style="font-size:12.5px;white-space:nowrap">返回流程导图</a>
+  <button onclick="window.print()">打印 / 存 PDF</button>
+  <button id="btnReset">清空勾选</button>
+</div>
+
+<aside class="side">
+  <div class="side-inner">
+    <div class="prog">
+      <div class="lab"><span>验收进度</span><b id="pTxt">0 / 0</b></div>
+      <div class="bar"><i id="pBar"></i></div>
+    </div>
+    <div class="nav-t">开始</div>
+    <nav class="nav" id="nav">
+      <a href="#s0"><span class="n">·</span><span class="t">这套东西怎么用</span></a>
+      <a href="#s1"><span class="n">0</span><span class="t">备料</span><span class="p">15m</span></a>
+    </nav>
+    <div class="nav-t">五个工作对话框 · 七个环节</div>
+    <nav class="nav">
+      <a href="#s2"><span class="n">①</span><span class="t">拆解</span><span class="p">20m</span></a>
+      <a href="#s3"><span class="n">②</span><span class="t">复刻</span><span class="p">30m</span></a>
+      <a href="#s4"><span class="n">③</span><span class="t">开头</span><span class="p">40m</span></a>
+      <a href="#s5"><span class="n">④</span><span class="t">小分镜</span><span class="p">50m</span></a>
+      <a href="#s6"><span class="n">⑤</span><span class="t">生产单元</span><span class="p">80m</span></a>
+      <a href="#s7"><span class="n">⑥</span><span class="t">生成与导入</span><span class="p">人</span></a>
+      <a href="#s8"><span class="n">⑦</span><span class="t">复盘</span><span class="p">人</span></a>
+    </nav>
+    <div class="nav-t">附录</div>
+    <nav class="nav">
+      <a href="#s9"><span class="n">卡</span><span class="t">一页速查</span></a>
+      <a href="#s10"><span class="n">坑</span><span class="t">已经踩过的六个坑</span></a>
+    </nav>
+  </div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+
+<!-- ══════════ 封面 ══════════ -->
+<section id="s0" class="hero">
+  <div class="kicker">新同事上手 · 不需要培训</div>
+  <h1>一条对标视频，<br>从<em>拆开它</em>，到<em>发出去</em>。</h1>
+  <p class="lead">
+    这套流程里没有"你看着办"。每一段都是：<b>开一个对话框 → 发一份固定指令 → 收几个固定文件 → 过一道闸门 → 关掉，开下一个</b>。
+    下面每一节都按真实对话的样子写：你发什么、它回什么、什么算合格、什么时候可以走。
+  </p>
+  <div class="kw">
+    <div><b>五份固定指令</b>在 <code class="inline">指令\</code> 里，打开就能全选复制</div>
+    <div><b>每份只改 1–2 行</b>顶部的路径，别的一个字都不要动</div>
+    <div><b>七个段落</b>，其中第 ③④ 段可以同时做</div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>全景：这条片子要经过谁的手</h3>
+
+  <div class="flowmap">
+    <div class="fm-row">
+      <div class="fm-node"><b>① 拆解</b><i>开口 1</i><span class="tag">Claude 类</span></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>② 复刻</b><i>开口 2</i><span class="tag">Claude 类</span></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-split-wrap">
+        <div class="fm-node ac"><b>③ 开头</b><i>开口 3</i><span class="tag">可与其他段并行</span></div>
+        <div class="fm-node ac"><b>④ 小分镜</b><i>开口 4</i><span class="tag">可与其他段并行</span></div>
+      </div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>⑤ 生产单元</b><i>开口 5</i><span class="tag">Codex 类</span></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>⑥ 生成</b><i>人做</i><span class="tag">点鼠标</span></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>⑦ 复盘</b><i>人＋AI</i><span class="tag">回填</span></div>
+    </div>
+    <div class="fm-cap">
+      <b>③ 和 ④ 可以同时开两个对话框</b>——因为开头段的末态已经写死在版本设定书里，两边不用互相等。
+      其余各段严格顺序：<b>上游没定稿，下游不开工。</b>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="ttl">先把这三条记住，能省掉八成的返工</span>
+    <b>一、一个对话框只干一段。</b>干完就关掉，别接着在这个框里聊下一段——上下文会串味，它会拿上一段的结论去猜下一段。<br>
+    <b>二、交接只靠文件，不靠聊天记录。</b>下一段只读名字固定的那几份文件。换人、换模型、隔三天再回来，都不断。<br>
+    <b>三、每一段都有闸门。</b>闸门没过，后面做得再漂亮也没意义——因为错在设计阶段，生成和剪辑都补不回来。
+  </div>
+
+  <div class="note"><span class="ttl">阅读说明：这是教学模拟，不是真实聊天截图</span>下方气泡、时间、示例文件统计和体检单是为了演示操作顺序而编排的，不能作为任何项目已经验收的证据。历史文件摘录只展示格式；历史项目存在已知问题，不等于合格样板。固定指令须取完整 txt，不能把气泡中的节选发给 AI。<b>本手册是现行流程的配套人读版，不修改原指令。</b></div>
+  <div class="warn"><span class="ttl">数字与检测结果怎么用</span>本页的 0.867、1.153 等是现行流程的预算假设，不是所有视频都已验证的固定取用率，也不等于真实播放倍速；1.2 秒和景别交替属于当前生产约定，不是所有模型的物理定律。原片有倍速或混速时，需逐段核实、预演动作，不能只套比例。场景检测只提供候选切点，须看片复核。脚本通过也不等于成片质量已经验证。</div>
+  <h3 class="blk"><span class="dot"></span>模型分工可以换，能力要求不能少</h3>
+  <p class="lead2">
+    这不是偏好，是四条片子跑下来形成的分工：<b>① ② ③ 要判断、要写长文</b>（拆解要看片、复刻要判断、开头要写方案）；
+    <b>④ ⑤ 要读写文件、守格式、跑检查脚本</b>（分镜和生产单元必须严格按栏位落盘）。
+    模型可以换，这个分工不要换。
+  </p>
+</section>
+
+<!-- ══════════ 第 0 步 ══════════ -->
+<section id="s1">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no">0</div><div class="lbl">开工之前</div></div>
+    <h2>备料：三样东西放桌上</h2>
+    <p class="one">这一段不产出任何文件。但缺一样，后面就会卡在第一段。</p>
+    <div class="meta"><span>15 分钟</span><span>人做</span><span class="hi">不产出文件</span></div>
+  </div>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">开工清单</div><div class="grow"></div><div class="cnt" data-gate="g0">0 / 5</div></div>
+    <div class="chk-l" data-gate="g0">
+      <label class="chk"><input type="checkbox" id="c0-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>一个对标视频</b>：YouTube 链接，或下载好的本地文件。要能读、要知道多长<small>判断标准是"静音看一遍还能看出他在干什么、干到哪一步"。只剩画面好看的不行。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c0-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>一套规范包</b>：里面有 <code class="inline">指令\</code>、<code class="inline">skills\</code>、<code class="inline">tools\</code><small>AI 第一句话就是"读某个 SKILL.md"。skill 跟着项目放同一个盘，项目能读，它就一定能读。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c0-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>一个能读写的盘</b>：AI 要把文件落盘，不是只在聊天里回你<small>这是硬边界。落在聊天里等于没做，下一段读不到。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c0-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>桌面「视频验收」图标</b>：双击就能查一个版本文件夹<small>没有也能用命令行，但每段结尾要看那张"体检单"，有它快得多。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c0-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>静音看一遍对标，写三句话</b>（见下）<small>这三句话就是第 ① 段要发出去的"我的理解"。</small></span></label>
+    </div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>那三句话，是整条片子的方向<span class="hint">不是礼貌，是输入</span></h3>
+  <table class="tbl">
+    <tr><th style="width:120px">写什么</th><th>要求</th><th style="width:200px">为什么必须有</th></tr>
+    <tr><td><b>它在讲什么</b></td><td>一句话。不要写"一个院子改造"，要写"邻居越界扔垃圾，他把院子重做一遍再扔回去"</td><td>决定骨架的<strong>主干</strong>是哪一条</td></tr>
+    <tr><td><b>它凭什么留人</b></td><td>点 2–3 个<strong>具体时刻</strong>（第几秒、画面里发生了什么）</td><td>决定后面"哪一处可以改、哪一处不能动"</td></tr>
+    <tr><td><b>我想改哪一处</b></td><td><strong>只写一处</strong>。两处以上，数据起来不知道是谁的功劳</td><td>复刻那一段只准差这一处</td></tr>
+  </table>
+
+  <div class="note">
+    <span class="ttl">这是整理输入的建议格式，不是新增硬门槛</span>
+    你已说明真实使用时会附上自己对视频的理解；这里把它整理成三项，方便员工照着表达。第三项还没想好就写「尚未决定，先拆原片」。<b>人的理解是待核假设，不得覆盖原片事实；不要为了填满三项强行改结构。</b>
+  </div>
+  <details class="sample"><summary>换电脑先检查什么<span class="fn">路径、权限、工具，而不是只拷这一页</span></summary><div class="paper">1. 这份 HTML 是培训入口，不是完整生产套件；员工还需要五份指令、skills、引用规则、项目访问权及检查工具。
+2. 本机指令含 E 盘路径，不能直接假定另一台电脑也能读；先使用已配置的同事套件，或由维护人配置路径。
+3. 使用能够读写指定目录、执行检查脚本的 AI 客户端；只有普通网页聊天框时，不能宣称文件已落盘。
+4. 主角身份图需要先准备；编号和主题按本项目，不默认每条都用 Alex。
+5. 提示找不到路径或缺权限，停在当前环节解决，不让 AI 按文件名猜内容。</div></details>
+  <details class="sample"><summary>指令提到「抽问单」时怎么办<span class="fn">现行文本有差异，不能假装已经提供</span></summary><div class="paper">① 拆解：现行指令明确让 AI 自行运行抽查脚本，生成 01_拆解\\_抽问单.md，无需员工先贴。
+②—⑤：现行指令仍写「开工前我会贴给你一张抽问单」。已有本环节抽问单就一并提供；没有时，可明确补充「本轮未另附抽问单，请按现行抽查机制生成并落盘，不得编造引用」。这是可选的操作补充，不是原指令已自动包含的能力。
+生成或读取失败应报告具体缺项；读到的原文须能与来源逐字核对。不要把一句「已读」当成证据。</div></details>
+</section>
+
+<!-- ══════════ ① 拆解 ══════════ -->
+<section id="s2">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no blue">1</div><div class="lbl">第 ① 段</div></div>
+    <h2>拆解：把别人的爆款，拆成你能照着做的骨架</h2>
+    <p class="one">爆的是结构，不是元素。同一个骨架，把桶换成棒子、院子换成阳台照样爆；元素抄得一模一样、结构动了，就死。</p>
+    <div class="meta"><span>Claude / 会判断的模型</span><span>20–40 分钟</span><span class="hi">新开第 1 个对话框</span><span>只写 01_拆解\</span></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>你要发三样</h3>
+  <table class="tbl">
+    <tr><th style="width:72px">顺序</th><th style="width:230px">发什么</th><th>怎么发</th></tr>
+    <tr><td><b>1</b></td><td><code class="inline">指令\1_拆解.txt</code><button class="copy" data-copy="指令\1_拆解.txt">复制路径</button></td><td>全文复制。28,784 字、928 行，看着长，但<b>一个字都不要删</b></td></tr>
+    <tr><td><b>2</b></td><td>改顶部那一行 <code class="inline">对标视频：</code></td><td>贴 YouTube 链接，或本地文件的完整路径。尖括号 <code>&lt; &gt;</code> 要删干净，不然它会把尖括号当路径的一部分</td></tr>
+    <tr><td><b>3</b></td><td>你写的那三句话</td><td>单独一条消息发，标题写「我的理解：」。这不是客套，是给它方向</td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>真实对话框长这样</h3>
+  <div class="chat">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">新对话</div><div class="grow"></div><div class="pill">深度思考 · 开</div></div>
+    <div class="chat-body">
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body">
+          <div class="who">你 · 14:02</div>
+          <div class="bubble">
+            <div class="paste">
+              <div class="paste-h"><span class="fn">1_拆解.txt</span><span class="n">· 全文 28,784 字 / 928 行</span></div>
+              <div class="paste-b">【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
+· 动作单位表、提速 S 的算法 → skills/adaptive-video-production/references/material-seconds.md
+· 整数秒、刀数口径 → 00_从这里开始.md 第 4 节
+冲突时以被引用文件为准。
+
+════════════════════════════════════════
+只改下面这一行。其他一个字都不用动。
+════════════════════════════════════════
+
+对标视频：&lt;贴 YouTube 链接，或本地文件的完整路径&gt;</div>
+              <div class="paste-f">… 已折叠 912 行</div>
+            </div>
+            <div class="attach"><span>对标视频：https://www.youtube.com/watch?v=…</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body">
+          <div class="who">你 · 14:03</div>
+          <div class="bubble">我的理解：这条片子不是"改造"，是"报复"。前 5 秒给的是越界扔垃圾，后面 57 秒全在还这一下。<br>我要的是这个"还回去"的结构，不是院子本身。<br><span class="sm">（第 0 秒的左右对比是它最值钱的地方，别动。）</span></div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 14:06</div>
+          <div class="bubble">
+            <p>能读：1080×1920，60fps，62.3 秒。</p>
+            <p class="sm">按四步落盘，每完成一步报一行。</p>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 14:31</div>
+          <div class="bubble">
+            <div class="log">
+              <div><span class="ok">第1步完成</span><span class="path">01_拆解\00_对标索引.md　6,214 字</span></div>
+              <div><span class="ok">第2步完成</span><span class="path">01_拆解\02_开头拆解.md　9,830 字</span></div>
+              <div><span class="ok">第3步完成</span><span class="path">01_拆解\03_整片拆解.md　21,455 字</span></div>
+              <div><span class="ok">第4步完成</span><span class="path">01_拆解\04_交付自查表.md　2,107 字</span></div>
+            </div>
+            <p style="margin-top:10px">四份都在 <code class="inline">20261028_B0011_neighbor_garden_war\01_拆解\</code>。骨架 8 个环节，合计 62.3 秒；组表机位数合计 61，与场景切点 60 相符。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>收什么：四份拆解 + 两样底料</h3>
+  <div class="files">
+    <div class="file must"><div class="ic">01</div><div><div class="nm">01_拆解\00_对标索引.md</div><div class="ds">能读回执、一句话三段式、七段环节表、对账四元组</div></div></div>
+    <div class="file must"><div class="ic">02</div><div><div class="nm">01_拆解\02_开头拆解.md</div><div class="ds">六张表：首帧、0–T 秒逐格、原片钩子<br>第③段做开头要回头用它</div></div></div>
+    <div class="file must"><div class="ic">03</div><div><div class="nm">01_拆解\03_整片拆解.md</div><div class="ds"><b>最重要</b>：逐镜表、生成组划分表（机位数）、静态大纲、占比、情绪弧</div></div></div>
+    <div class="file must"><div class="ic">04</div><div><div class="nm">01_拆解\04_交付自查表.md</div><div class="ds">它自己核过的清单，你先扫一眼，再自己抽三条复核</div></div></div>
+    <div class="file"><div class="ic">＋</div><div><div class="nm">00_项目台账.md</div><div class="ds">每落盘一步追加一行，能看出它做了几步、几点做的</div></div></div>
+    <div class="file"><div class="ic">＋</div><div><div class="nm">01_拆解\01_原片证据\first_frame-001.jpg</div><div class="ds">首帧。<b>第③段要用它比"看过感"</b>，没有这张，开头只能凭描述猜</div></div></div>
+  </div>
+
+  <details class="sample">
+    <summary>看一份真实产出<span class="fn">01_拆解\00_对标索引.md · 第 0.5 节</span></summary>
+    <div class="paper">### 它凭什么留住人
+
+- 0.0 秒：栅栏两侧一边绿一边枯，同一个画面里给出对比，不用一句解释。
+- 0.8 秒：黑袋越过栅栏落到右边地面，静态对比变成一次越界动作。
+- 2.6 秒：房主脸部特写，皱眉，情绪从空间落到人身上。
+- 4.3–47 秒：几乎每两秒给出一个可见变化（拔草、装袋、挖土、铺石、种花），中段没有空转。
+- 49.8 秒：枯叶扔回去砸在邻居头上，结尾连人物关系一起结掉。
+
+### 承重结构
+
+- 那道栅栏：没有它，两边就不是两家人，越界扔垃圾这件事不成立。
+- 首帧的左右对比：左边绿、右边枯，同一个景别里同时出现。
+- 一个人干完全程：右边院子从始至终只有房主一人动手，邻居只在栏外看。
+- 回敬那一下：把单向被欺负改成可以互相开玩笑。</div>
+  </details>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">验收闸门 · 拆解</div><div class="sub">人看，5 分钟</div><div class="grow"></div><div class="cnt" data-gate="g1">0 / 6</div></div>
+    <div class="chk-l" data-gate="g1">
+      <label class="chk"><input type="checkbox" id="c1-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>骨架是 7–9 个环节，不是 30 个镜头</b><small>数多了说明它没抽象，只是把镜头复述了一遍。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c1-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每个环节标了秒数，加起来等于全片长</b><small>对不上不是"差一点"，是它自己编了时间。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c1-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>组表「机位数」填的是整数镜数，不是段数</b><small>校验：机位数合计 ≈ 场景检测切点数 ＋ 1（±1）。这一列错了，第 ② 段刀数一定跟着错。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c1-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>景别写成了序列</b><small>要写 <code class="inline">中景 → 特写</code>。写"中景转特写"，下游读不出几个机位、每个什么景别，会自己猜。校验：切换次数 ＝ 机位数 − 1。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c1-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>标出了密度最高、最低的两个环节</b><small>后面"改哪一处"就靠它。密度最低的那个，就是最该换的。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c1-6"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>first_frame-001.jpg 在</b><small>它不在，第③段只能凭描述猜"看过感"，开头大概率白做。</small></span></label>
+    </div>
+  </div>
+
+  <div class="verdict go">
+    <div class="ic">✓</div>
+    <div class="c"><b>可以关掉这个对话框了，当且仅当：</b>四份文件都在磁盘上 ／ 你能用一句话说出骨架 ／ 机位数合计对得上切点数。</div>
+  </div>
+  <div class="verdict stop">
+    <div class="ic">×</div>
+    <div class="c"><b>出现这些就退回，别自己补：</b>只交了三份（缺整片拆解）／ 骨架写了 20 多条 ／ 机位数合计约等于段数 ／ 没有首帧。</div>
+  </div>
+</section>
+
+<!-- ══════════ ② 复刻 ══════════ -->
+<section id="s3">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no blue">2</div><div class="lbl">第 ② 段</div></div>
+    <h2>复刻：把对标翻译成"我们这条片子"</h2>
+    <p class="one">这一段是全流程唯一还能便宜改动的地方。它过了，后面基本不会错；它糊里糊涂过了，后面做得再漂亮也没意义。</p>
+    <div class="meta"><span>Claude / 会判断的模型</span><span>20–40 分钟</span><span class="hi">新开第 2 个对话框</span><span>只写 02_复刻\</span></div>
+  </div>
+
+  <div class="note">
+    <span class="ttl">为什么中间要多这一层</span>
+    不设这一段，开头会自己理解一遍对标，小分镜再理解一遍，生产又理解一遍——<b>三遍想三样，接缝必然打架</b>。
+    第 3 条片子开头写 20 英尺箱、后段画 40 英尺箱，等生产段核对时，后段已经全画完了。
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>你要发两样，比上一段还少</h3>
+  <table class="tbl">
+    <tr><th style="width:72px">顺序</th><th style="width:230px">发什么</th><th>怎么发</th></tr>
+    <tr><td><b>1</b></td><td><code class="inline">指令\2_复刻.txt</code><button class="copy" data-copy="指令\2_复刻.txt">复制路径</button></td><td>全文复制，24,005 字</td></tr>
+    <tr><td><b>2</b></td><td>改顶部那一行 <code class="inline">对标编号：</code></td><td>形如 <code class="inline">B0011</code>。短名、项目文件夹、条数<b>都不填</b>——它自己推</td></tr>
+  </table>
+
+  <div class="chat">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">新对话</div><div class="grow"></div><div class="pill">深度思考 · 开</div></div>
+    <div class="chat-body">
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body">
+          <div class="who">你 · 15:10</div>
+          <div class="bubble">
+            <div class="paste">
+              <div class="paste-h"><span class="fn">2_复刻.txt</span><span class="n">· 全文 24,005 字 / 803 行</span></div>
+              <div class="paste-b">【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
+· 动作单位表、素材秒两档、剪裁比 0.867、换算 1.153、每刀素材秒下限 1.2 → material-seconds.md
+· 整数秒 4–15、刀数口径、每盒刀数上限 → 00_从这里开始.md 第 4 节
+冲突时以被引用文件为准。
+
+════════════════════════════════════════
+只改下面这一行。其他一个字都不用动。
+════════════════════════════════════════
+
+对标编号：B0011</div>
+              <div class="paste-f">… 已折叠 790 行</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 15:18</div>
+          <div class="bubble">
+            <p><b>先报条数：</b>这条对标最多能出 <b>7 条</b>（可调子维度 6 个 ＋ 对照版 1 条）。本轮你要 1 条，所以只做对照版 V01。</p>
+            <p class="sm">V01 是全抄版：故事结构、工序顺序、关键时间点一处不动；人物、场景、天气、穿着全换。</p>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 15:41</div>
+          <div class="bubble">
+            <div class="log"><div><span class="ok">已落盘</span><span class="path">02_复刻\01_微调大纲.md　三块：骨架 / 大纲 / 这一版改了什么</span></div></div>
+            <p style="margin-top:10px">检查项 16 条全过。等你审三件；说「定稿」我才建 V 文件夹和设定书。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <span class="ttl">注意它只交一个文件</span>
+    <code class="inline">01_微调大纲.md</code> 就是以前的"中间过程稿"，名字换了、内容只剩三块。
+    <b>V01–Vnn 文件夹和版本设定书，在你回「定稿」之前一个都不许建。</b>建早了等于把没审过的东西分发给下游。
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>你只审三件<span class="hint">这一层最贵的判断都在这儿</span></h3>
+  <div class="steps">
+    <div class="step"><div class="n"></div><div class="c"><b>骨架那一句对不对</b>不对只打回这一句，不打回整份。它错了，后面全白写。</div></div>
+    <div class="step"><div class="n"></div><div class="c"><b>四个数字</b>段数 ／ 镜数 ／ 每段机位数 ／ 平均每镜，并写明和原片各差百分之几。这四个数必须和 <code class="inline">01_拆解\03_整片拆解.md</code> 组表里的「机位数」对得上。</div></div>
+    <div class="step"><div class="n"></div><div class="c"><b>逐刀「起止秒」有没有和原片逐行一样</b>逐行一样就是照抄原片剪点，违反"写素材秒"。<b>超过 3 刀相同，退回重写。</b></div></div>
+  </div>
+
+  <div class="bad">
+    <span class="ttl">四个数对不上是什么后果（真事）</span>
+    B0011 那一版，组表里 17 个组相加是 <b>36</b>，而同一个文件开头写「<b>61 个镜头</b>」——一列里住了两个量。
+    下游据此把 61 镜折成 36 刀，<b>成片从 62 秒掉到 31 秒</b>，而且四道闸没有一道会报错。
+  </div>
+
+  <details class="sample">
+    <summary>看它交的大纲开头<span class="fn">02_复刻\01_微调大纲.md</span></summary>
+    <div class="paper"># 01_微调大纲｜B0011 邻居荒院改造
+
+对标：B0011｜母版 62.333 秒｜本片 62.5 秒
+本轮只出 V01，一条。V01 是对照版：锁死层全抄、表面八项全换、可调层一处不动。
+
+## 第 0.5 节 这批怎么看
+
+这条对标最多能出 7 条（可调子维度 6 个 + 对照版 1 条）……
+本轮只要 1 条，所以只做对照版 V01。
+
+## 第 1 节 骨架（全批共用）
+
+被邻居当面羞辱 → 忍着不吵，一个人把废掉的那片重做 →
+从不能用到能待客 → 完工时把羞辱原样还回去 → 对方错愕、她笑，两边扯平
+
+## 第 2 节 大纲（V01 逐段）
+
+> Σ素材 ＝ 74.2 秒，×0.867 ≈ 64.3 秒，落在成片 62.5 秒的 +2.9%，在对标 ±15% 内。
+> T ＝ 5.0 秒（母版第 4.267 秒第一次接触要处理的东西，动作收到 5.000 秒）</div>
+  </details>
+
+  <h3 class="blk"><span class="dot"></span>审完，回一句「定稿」</h3>
+  <p class="lead2">定稿那一刻，它一次性建好全部版本文件夹，每版各写一份 <code class="inline">00_版本设定书.md</code>。设定书是从大纲<b>机械派生</b>的，不新增任何设计——派生出大纲里没有的动作或场地，就是错，打回。</p>
+  <p class="lead2">设定书你不用逐字看，它是给 ③④⑤ 三段 AI 读的。它的作用是把已经审过的东西原样分发到各版本目录，让每段都能自包含地开工。</p>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">验收闸门 · 复刻</div><div class="sub">人审三件 + 四条算术</div><div class="grow"></div><div class="cnt" data-gate="g2">0 / 5</div></div>
+    <div class="chk-l" data-gate="g2">
+      <label class="chk"><input type="checkbox" id="c2-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>三件都过</b>：骨架一句 ／ 四个数 ／ 起止秒没照抄</span></label>
+      <label class="chk"><input type="checkbox" id="c2-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>四个数和组表机位数对得上</b><small>对不上，说明刀数是按段数折的。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c2-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每盒生成秒是整数，落在 4–15</b><small>算法：<code class="inline">原片这段秒数 × 1.153 → 向上取整</code>。10.6 这种提交不上去。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c2-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每盒刀数 ≤ 生成秒 ÷ 1.2</b><small>13 秒最多 10 刀，15 秒最多 12 刀。这是算术，不是建议。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c2-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>逐刀景别排成序列，相邻两刀没有相同</b><small>相同就等于没切。实测：两刀同为中景，4.2 秒被连成一条，7 刀只切出 4 个切点。</small></span></label>
+    </div>
+  </div>
+
+  <div class="verdict go"><div class="ic">✓</div><div class="c"><b>可以关掉这个对话框了，当且仅当：</b>你说过「定稿」，并且 <code class="inline">02_复刻\V01_…\00_版本设定书.md</code> 已经在磁盘上。</div></div>
+</section>
+
+<!-- ══════════ ③ 开头 ══════════ -->
+<section id="s4">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no blue">3</div><div class="lbl">第 ③ 段</div></div>
+    <h2>开头：把前 T 秒做到没人划走</h2>
+    <p class="one">这一步决定 70% 的成败，后面全是苦劳。它不是"做个开头"，是做一个让人停下来的东西。</p>
+    <div class="meta"><span>Claude / 会判断的模型</span><span>30–60 分钟</span><span class="hi">新开第 3 个对话框</span><span>只写 开头\ ＋ 共用卡 ＋ 单元\U01.md</span></div>
+  </div>
+
+  <div class="note">
+    <span class="ttl">T 不是 13 秒，是个变量</span>
+    T ＝ <b>原片里"人第一次接触要处理的东西"的时刻</b>，取到那段动作结束。95 秒的片子大约 13 秒，62 秒的可能只有 5 秒，29 秒的可能 4 秒。
+    <b>算出来的 T 写进设定书第 2 节，你按那个值看</b>，不要照抄 13。
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>开工前必须有两张图<span class="hint">缺一张就别开</span></h3>
+  <table class="tbl">
+    <tr><th style="width:300px">文件</th><th style="width:280px">在哪</th><th>没有会怎样</th></tr>
+    <tr><td><code class="inline">RC01_主角身份参考_v01.png</code></td><td>版本文件夹根目录</td><td>开头没有身份基准，<b>主角会变脸</b></td></tr>
+    <tr><td><code class="inline">first_frame-001.jpg</code></td><td><code class="inline">01_拆解\01_原片证据\</code></td><td>没法比"看过感"，只能凭描述猜</td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>你要发两样 + 改两行</h3>
+  <table class="tbl">
+    <tr><th style="width:72px">顺序</th><th style="width:230px">发什么</th><th>怎么发</th></tr>
+    <tr><td><b>1</b></td><td><code class="inline">指令\3_开头.txt</code><button class="copy" data-copy="指令\3_开头.txt">复制路径</button></td><td>全文复制，18,237 字</td></tr>
+    <tr><td><b>2</b></td><td><code class="inline">版本文件夹：</code></td><td>贴 <code class="inline">…\02_复刻\V01_短名</code> 的完整路径</td></tr>
+    <tr><td><b>3</b></td><td><code class="inline">对标拆解目录：</code></td><td>贴 <code class="inline">…\01_拆解</code> 的完整路径</td></tr>
+  </table>
+
+  <div class="warn">
+    <span class="ttl">这一处和旧文档不一样，以 txt 为准</span>
+    现在 <code class="inline">3_开头.txt</code> 和 <code class="inline">4_小分镜.txt</code> 顶部改的是<b>两行</b>（版本文件夹 ＋ 对标拆解目录），
+    不再是旧文档里写的"项目根目录"。照旧文档填，它会去错的层级找文件，然后自己编。
+  </div>
+
+  <div class="chat">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">新对话</div><div class="grow"></div><div class="pill">深度思考 · 开</div></div>
+    <div class="chat-body">
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body">
+          <div class="who">你 · 16:02</div>
+          <div class="bubble">
+            <div class="paste">
+              <div class="paste-h"><span class="fn">3_开头.txt</span><span class="n">· 全文 18,237 字 / 635 行</span></div>
+              <div class="paste-b">【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
+· 素材秒算法与动作单位表 → material-seconds.md
+· 整数秒、刀数口径 → 00_从这里开始.md 第 4 节
+· 景别交替 → internal-cut.md
+本文件独有的定义：T 的含义、硬规则 17（开头段工序数＝0）、U01 不拆盒。
+
+════════════════════════════════════════
+只改下面这两行。其他一个字都不用动。
+════════════════════════════════════════
+
+版本文件夹：&lt;粘贴 V0x_短名 的完整路径&gt;
+对标拆解目录：&lt;粘贴 …\01_拆解 的完整路径&gt;</div>
+              <div class="paste-f">… 已折叠 620 行</div>
+            </div>
+            <div class="attach"><span>版本文件夹：E:\…\02_复刻\V01_neighbor_garden_war</span><span>对标拆解目录：E:\…\01_拆解</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 16:09</div>
+          <div class="bubble">
+            <p><b>先回答七问，再写卡。</b></p>
+            <p class="sm">1. T ＝ 5.0 秒（母版第 4.267 秒第一次接触要处理的东西）<br>2. 第 0 秒外部条件正打在暴露物上：袋口朝上、只装七成<br>3. 原位置痛点还在：右侧死草区占画面 34.8%<br>4. U01 生成 6 秒，装 5 刀，每刀 1.2 秒</p>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai"><div class="av">AI</div><div class="body"><div class="who">AI · 确认前</div><div class="bubble">先交你审：新旧逐秒对照表、必须有／禁止有清单、七问答案。请先判断首帧、动作与 T 秒末态是否成立；未确认不写定稿文件。</div></div></div>
+      <div class="msg user"><div class="av">你</div><div class="body"><div class="who">你 · 审完后</div><div class="bubble">确认。按刚才审过的方案保存，T 秒末态不变。</div></div></div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 16:44</div>
+          <div class="bubble">
+            <div class="log">
+              <div><span class="ok">落盘</span><span class="path">开头\开头方案_有效.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">开头\开头交接.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">开头\任务记录.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">共用卡制卡词.md（版本根目录）</span></div>
+              <div><span class="ok">落盘</span><span class="path">单元\U01.md</span></div>
+            </div>
+            <p style="margin-top:10px"><b>T 秒末态：</b>6 只墨绿袋，5 鼓 1 瘪；她站在藤椅与围栏之间，双手垂放；无工具入场；旁观者在栏外左侧。</p>
+            <p><b>U01：</b>生成 6 秒 ／ 5 刀 ／ 完整 Prompt 3,412 字符 ／ 参考图 2 张。</p>
+            <p class="sm">这一段的文件都在 <code class="inline">…\02_复刻\V01_neighbor_garden_war</code>。请运行 <code class="inline">Pipeline.py 查 开头 --版本 &lt;目录&gt;</code> 检查一遍。</p>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 16:45</div>
+          <div class="bubble"><div class="attach" style="background:none;border:none;padding:0;margin:0"><span style="background:#f1f5f9;border-color:#e3e7ed;color:#334155">_验收\体检单.png</span><span style="background:#f1f5f9;border-color:#e3e7ed;color:#334155">_验收\看板_开头.png</span></div><p class="sm" style="margin-top:8px">两张图都跑好了，路径在上面。</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>每段结尾你都会收到这张「体检单」</h3>
+  <div class="report">
+    <div class="report-h"><div class="t">视频体检单</div><div class="s">V01_neighbor_garden_war　·　10-29 16:45</div></div>
+    <div class="report-b">
+      <div class="rrow"><span class="st g"></span><span class="nm">① 拆解</span><span class="tag g-t">通过</span><span class="rs">四份产物、占比、情绪弧、三段式</span></div>
+      <div class="rrow"><span class="st g"></span><span class="nm">② 设定书</span><span class="tag g-t">通过</span><span class="rs">十节齐、4.5 逐刀表七列齐</span></div>
+      <div class="rrow"><span class="st g"></span><span class="nm">③ 开头</span><span class="tag g-t">通过</span><span class="rs">U01 6 秒 / 5 刀 / 3412 字符</span></div>
+      <div class="rrow"><span class="st y"></span><span class="nm">④ 小分镜</span><span class="tag y-t">还没做</span><span class="rs">这一段还没有产物</span></div>
+      <div class="rrow"><span class="st y"></span><span class="nm">⑤ 生产单元</span><span class="tag y-t">还没做</span><span class="rs">这一段还没有产物</span></div>
+      <div class="rrow"><span class="st y"></span><span class="nm">⑥ 成片</span><span class="tag y-t">还没做</span><span class="rs">还没有生成成片</span></div>
+    </div>
+    <div class="report-f">①②③ 已通过。④⑤⑥ 还没做；下一步等待后段分镜完成。</div>
+  </div>
+
+  <div class="files">
+    <div class="file must"><div class="ic">01</div><div><div class="nm">开头\开头方案_有效.md</div><div class="ds">逐段表：段／秒／画面／那一个动作（≤40 字）／动作数／情绪／旁白</div></div></div>
+    <div class="file must"><div class="ic">02</div><div><div class="nm">开头\开头交接.md</div><div class="ds"><b>最重要</b>：七项 ＋ 提示词包一节。第④⑤段全靠它</div></div></div>
+    <div class="file must"><div class="ic">03</div><div><div class="nm">开头\任务记录.md</div><div class="ds">来源、纠正、版本。改一版另存 v2，不覆盖旧版</div></div></div>
+    <div class="file must"><div class="ic">04</div><div><div class="nm">共用卡制卡词.md</div><div class="ds">版本根目录。RC01–RCnn 全片图卡，每张四行</div></div></div>
+    <div class="file must"><div class="ic">05</div><div><div class="nm">单元\U01.md</div><div class="ds">五行头部 ＋ 唯一「拼好的完整正文」text 块，逐刀写硬切</div></div></div>
+    <div class="file"><div class="ic">眼</div><div><div class="nm">开头_人读版.md</div><div class="ds">≤600 字大白话，给你看的，不用发给 AI</div></div></div>
+  </div>
+
+  <details class="sample">
+    <summary>看交接文件里最容易被漏的那一节<span class="fn">开头\开头交接.md · 第 1、2 节</span></summary>
+    <div class="paper">## 1. T 值与段边界
+
+T = 5.0 秒（引用 00_版本设定书.md §2，未重算）
+开头段末秒 = 5.000（与设定书 T 一致）
+三段边界（单位秒）：① 0 起、2.6 止；② 2.6 起、3.1 止；③ 3.1 起、5.0 止
+
+## 2. T 秒末态十项键值（逐字对齐设定书 §4.1）
+
+末态.主体物数量与状态 = 6 只墨绿庭院袋：5 只鼓胀散在死草里（含刚抛入的 1 只），1 只空瘪叠在围栏边
+末态.主体物位置与朝向 = 围栏那侧死草区中央，袋口朝画面右
+末态.主角位置与姿态 = 站在藤椅与围栏之间，面朝围栏，双手垂放，肩略前倾
+末态.工具去向 = 无工具入场（第一件工具在中间段才出现）
+末态.机位锚点 C0 = 广角，机位高 1.6m，俯拍 12°，固定，画面左 1/3 为 patio</div>
+  </details>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">验收闸门 · 开头</div><div class="sub">这一步要仔细看，别跳过</div><div class="grow"></div><div class="cnt" data-gate="g3">0 / 6</div></div>
+    <div class="chk-l" data-gate="g3">
+      <label class="chk"><input type="checkbox" id="c3-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>首帧有 ≥2 样"正常人家不会有"的东西</b><small>静音、遮字幕，给没看过的人看 1 秒，他要能说出"这里不对劲"。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c3-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>开头段工序数 ＝ 0</b><small>不许出现工具，不许出现"问题物减少"。件数不是限制，工序数才是。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c3-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>U01 的生成秒和刀数算得对</b><small>生成秒 ＝ T ÷ 0.867 取整；刀数 ＝ 这一盒覆盖段的机位数（拿不到才 生成秒 ÷ 2）。T=5 秒 → 生成 6 秒 → 最多 5 刀（6 ÷ 1.2）。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c3-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>相邻两刀景别真的不同</b><small>近↔中↔全。只挪机位不算切，观众看不见那个切。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c3-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每刀素材秒 ≥1.2（纯展示刀可 1.0）</b><small>低于 1.2，模型看不清动作在干什么，只会补一个废动作进来。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c3-6"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>一张图都没生成</b><small>这一步只写词，是对的。生成在第⑥段。</small></span></label>
+    </div>
+  </div>
+
+  <div class="verdict go"><div class="ic">✓</div><div class="c"><b>可以关掉这个对话框了，当且仅当：</b>五个文件都在 ／ <code class="inline">开头交接.md</code> 七项齐 ／ 体检单 ③ 那一行是绿的。</div></div>
+  <div class="verdict stop"><div class="ic">×</div><div class="c"><b>出现这些就退回：</b>交接缺"T 秒末态十项键值" ／ U01 镜数与设定书不符，或镜头中出现无变化的等待 ／ 参考卡全写成 9:16（默认应该是 3:2）。</div></div>
+</section>
+
+<!-- ══════════ ④ 小分镜 ══════════ -->
+<section id="s5">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no blue">4</div><div class="lbl">第 ④ 段</div></div>
+    <h2>小分镜：T 秒到结尾，每一秒都安排好</h2>
+    <p class="one">这一段最长，也最容易注水。它和开头是并行的，不是接续的。</p>
+    <div class="meta"><span>Codex / 能读写文件的模型</span><span>40–60 分钟</span><span class="hi">另开第 4 个对话框（可与③同时）</span><span>只写 分镜\</span></div>
+  </div>
+
+  <div class="note">
+    <span class="ttl">为什么必须另开一个对话框</span>
+    放在开头那个对话框里，它会变成<b>排队</b>，不是并行。而且它不需要读开头正在写的东西——它按设定书第 4 节末尾的「T 秒末态十项键值」独立设计 T 秒之后。
+    两边唯一要对上的就是那一刀：开头停在什么状态，它就从什么状态接。
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>你要发的，和上一段一模一样</h3>
+  <table class="tbl">
+    <tr><th style="width:230px">发什么</th><th>说明</th></tr>
+    <tr><td><code class="inline">指令\4_小分镜.txt</code><button class="copy" data-copy="指令\4_小分镜.txt">复制路径</button></td><td>全文复制，23,010 字。顶部同样改两行：<code class="inline">版本文件夹：</code> ＋ <code class="inline">对标拆解目录：</code></td></tr>
+  </table>
+
+  <div class="chat">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">新对话</div><div class="grow"></div><div class="pill">深度思考 · 开</div></div>
+    <div class="chat-body">
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body">
+          <div class="who">你 · 16:03</div>
+          <div class="bubble">
+            <div class="paste">
+              <div class="paste-h"><span class="fn">4_小分镜.txt</span><span class="n">· 全文 23,010 字 / 838 行</span></div>
+              <div class="paste-b">【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
+· 素材秒两档与动作单位表 → material-seconds.md
+· 景别交替、切点写法 → internal-cut.md
+本文件独有的定义：每刀职责四类、禁准备动作、移动必须带着东西、
+到位即松手、每一刀都要有下游。
+
+════════════════════════════════════════
+只改下面这两行。其他一个字都不用动。
+════════════════════════════════════════
+
+版本文件夹：&lt;粘贴 V0x_短名 的完整路径&gt;
+对标拆解目录：&lt;粘贴 …\01_拆解 的完整路径&gt;</div>
+              <div class="paste-f">… 已折叠 820 行</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 16:52</div>
+          <div class="bubble">
+            <div class="log">
+              <div><span class="ok">落盘</span><span class="path">分镜\后段小分镜_有效.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">分镜\分镜交接.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">分镜\改动影响清单.md</span></div>
+            </div>
+            <p style="margin-top:10px">全段七栏齐。教学规划示例：后段 N06–N58，合计 53 刀，Σ素材 67 秒；开头 N01–N05 另计 6 秒。<br>开头 T 秒起点十项逐条对上设定书 §4.1。</p>
+            <p class="sm">两张图：<code class="inline">_验收\体检单.png</code>、<code class="inline">_验收\看板_分镜.png</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="files">
+    <div class="file must"><div class="ic">01</div><div><div class="nm">分镜\后段小分镜_有效.md</div><div class="ds">七栏正文、旁白逐字、字幕分组。第 2 栏要能直接拿去写提示词</div></div></div>
+    <div class="file must"><div class="ic">02</div><div><div class="nm">分镜\分镜交接.md</div><div class="ds">T 秒起点十项核对、情绪承接、不可改动作、待裁决表</div></div></div>
+    <div class="file must"><div class="ic">03</div><div><div class="nm">分镜\改动影响清单.md</div><div class="ds">对着设定书逐段判断：直接照抄的／只换表面的／必须重写的</div></div></div>
+    <div class="file"><div class="ic">图</div><div><div class="nm">_验收\体检单.png · 看板_分镜.png</div><div class="ds">结论图 ＋ 过程图，都跑好了再交</div></div></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>这一段的核心不是"写好看"，是"接得上"</h3>
+  <p class="lead2">每一刀都要写两句话：<code class="inline">下游：这个结果在第 N__ 刀被看见</code> 和 <code class="inline">消费：这一刀用掉了上一刀留下的 ____</code>。<br>
+  写不出下游刀号 ＝ 这一刀白干，删掉、补一刀让结果被看见，或改动作让它直接产出后面要用的东西。</p>
+  <p class="lead2">把整条链念一遍：挖开 → 东西被运走 → 回填 → 摊平 → 铺在垫层上。<b>念不通就是断链。</b></p>
+
+  <details class="sample">
+    <summary>看交接里的接缝表长什么样<span class="fn">分镜\分镜交接.md · 第 2 节</span></summary>
+    <div class="paper">## 2. 开头接缝核对（逐项对设定书 §4.1）
+
+| 键值 | 设定书 §4.1 | 本段 N04 起点 | 对上没有 |
+|---|---|---|---|
+| 主体物数量与状态 | 6 只墨绿庭院袋（5 鼓 1 瘪） | N04 起点未动袋，仍是 5 鼓 1 瘪 | 对上 |
+| 场地与地面状态 | 左 1/3 patio＋草坪，右侧死草与裸土 34.8% | N04 起点同；N04 结束时三块草印露出裸土 | 对上 |
+| 主角位置与姿态 | 站藤椅与围栏之间、面朝围栏、双手垂放 | N04 起点同 | 对上 |
+| 工具去向 | 无工具入场 | N04–N10 仍无工具；工具在 N11 才出现 | 对上 |
+| 旁观者位置 | 栏外左侧、站姿 | N04–N10 未入画；N24 起回到画面里 | 对上（省略，不算缺失） |</div>
+  </details>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">验收闸门 · 小分镜</div><div class="grow"></div><div class="cnt" data-gate="g4">0 / 6</div></div>
+    <div class="chk-l" data-gate="g4">
+      <label class="chk"><input type="checkbox" id="c4-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每段七栏齐全，第 2 栏能直接拿去写提示词</b><small>出现"同上""沿用前面"，生产段读不到具体内容，会自己编。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c4-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每刀同时写了「成片秒」和「素材秒」，两个数不一样</b><small>素材秒由预演估出来，不是抄对标。抄对标就会照抄剪点。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c4-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每刀素材秒 ≥1.2；一盒刀数 ≤ 生成秒 ÷ 1.2</b><small>11 秒最多 9 刀、13 秒 10 刀、15 秒 12 刀。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c4-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>七刀景别连起来念一遍，没有一对相同</b><small>可直接抄标准序列：<code class="inline">近 → 中 → 全 → 特 → 全 → 近 → 全</code>。有一对相同就改掉。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c4-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每刀都有「下游」和「消费」，整条链念得通</b><small>每一个产出都有去处，每一个用处都有来处。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c4-6"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>没有"拍两下／压两下／敲 N 下"这类收尾手势</b><small>一律改成"他的手已经离开 X，抬向 Y"。这类动作模型只会重复，剪的时候整段是废的。</small></span></label>
+    </div>
+  </div>
+
+  <div class="note"><span class="ttl">这一段的最后一轮，仍在同一对话框完成</span><b>你：</b>「确认这版后段分镜，按当前有效稿移交生产。」<br><b>AI：</b>更新移交表状态；实质冲突不能留作“未裁决”并宣称可以生产。尚未生成的画面质量可标“待媒体验证”，不能写成已验证。</div>
+  <div class="verdict go"><div class="ic">✓</div><div class="c"><b>可以关掉这个对话框了，当且仅当：</b>三个文件在 ／ 分镜交接十项逐条对上设定书 §4.1 ／ 你已确认移交，阻塞项已解决 ／ 体检单 ④ 那一行是绿的。</div></div>
+</section>
+
+<!-- ══════════ ⑤ 生产单元 ══════════ -->
+<section id="s6">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no blue">5</div><div class="lbl">第 ⑤ 段</div></div>
+    <h2>生产单元：变成能直接粘进平台的东西</h2>
+    <p class="one">每张图的提示词、每段视频的提示词、每个单元用哪几张图。到这一步结束，一张图都还没生成。</p>
+    <div class="meta"><span>Codex / 能读写文件的模型</span><span>60–90 分钟</span><span class="hi">新开第 5 个对话框</span><span>只写 单元\ 说明\ 根目录</span></div>
+  </div>
+
+  <div class="bad">
+    <span class="ttl">前提：两个交接都在，不在就别开</span>
+    <code class="inline">开头\开头交接.md</code> ＋ <code class="inline">分镜\分镜交接.md</code>。
+    少一个，它一定会自己编一个开头，然后全部返工——这不是概率问题。
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>你要发：指令 ＋ 一行路径</h3>
+  <table class="tbl">
+    <tr><th style="width:230px">发什么</th><th>说明</th></tr>
+    <tr><td><code class="inline">指令\5_生产单元.txt</code><button class="copy" data-copy="指令\5_生产单元.txt">复制路径</button></td><td>全文复制，33,816 字。只改顶部一行 <code class="inline">版本文件夹：</code></td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>这一段是两段式，中间必须你点头</h3>
+  <div class="chat">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">新对话</div><div class="grow"></div><div class="pill">深度思考 · 开</div></div>
+    <div class="chat-body">
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body"><div class="who">你 · 09:12</div><div class="bubble"><div class="paste"><div class="paste-h"><span class="fn">5_生产单元.txt</span><span class="n">· 全文 33,816 字 / 1,182 行</span></div><div class="paste-b">【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
+· 素材秒与换算 → material-seconds.md
+· 整数秒、刀数口径 → 00_从这里开始.md 第 4 节
+· 景别交替 → internal-cut.md
+本文件独有的定义：划盒规则（13–15 秒装满）、禁切组不许跨、
+每盒景别序列核对表、表面清单逐项对照。
+
+════════════════════════════════════════
+只改下面这一行。其他一个字都不用动。
+════════════════════════════════════════
+
+版本文件夹：&lt;粘贴 V0x_短名 的完整路径&gt;</div><div class="paste-f">… 已折叠 1,160 行</div></div></div></div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 09:26</div>
+          <div class="bubble">
+            <p><b>先报单元规划表，等你点头再写词。</b></p>
+            <table class="tbl" style="margin:8px 0 4px;font-size:11.8px">
+              <tr><th>单元</th><th>覆盖</th><th>生成</th><th>刀</th><th>一句话</th></tr>
+              <tr><td>U01</td><td>开头 0–T</td><td>6 秒</td><td>5</td><td>开头定稿卡，直接沿用</td></tr>
+              <tr><td>U02</td><td>N06–N17</td><td>15 秒</td><td>12</td><td>按分镜承接清理与场地变化</td></tr>
+              <tr><td>U03</td><td>N18–N29</td><td>15 秒</td><td>12</td><td>按机位与物理起点接续</td></tr>
+              <tr><td>U04</td><td>N30–N41</td><td>15 秒</td><td>12</td><td>同场地后续动作，盒内硬切</td></tr>
+              <tr><td>U05</td><td>N42–N51</td><td>13 秒</td><td>10</td><td>接续完善与情绪回收</td></tr>
+              <tr><td>U06</td><td>N52–N58</td><td>9 秒</td><td>7</td><td>结果验证与结束</td></tr>
+            </table>
+            <p class="sm">教学算术示例：Σ生成 73 秒，预算 73 秒（62.5 × 1.153 → 向上取整）；预计成片约 63.3 秒。共 58 刀，每盒均满足刀数容量。6 个单元落在 51–70 秒档。<b>这些编号和数字仅示范规划表，不是 B0011 的修正版；真实覆盖范围须从本版设定书与分镜逐刀对账。</b></p>
+          </div>
+        </div>
+      </div>
+      <div class="msg user">
+        <div class="av">你</div>
+        <div class="body"><div class="who">你 · 09:31</div><div class="bubble">可以。按这张单元规划表写完整包，U01 沿用开头定稿，不重写。</div></div>
+      </div>
+      <div class="msg ai">
+        <div class="av">AI</div>
+        <div class="body">
+          <div class="who">AI · 10:48</div>
+          <div class="bubble">
+            <div class="log">
+              <div><span class="ok">落盘</span><span class="path">00_生产包入口.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">共用卡制卡词.md　RC01–RC08 共 8 张</span></div>
+              <div><span class="ok">落盘</span><span class="path">单元\U01.md – U06.md　6 条视频任务</span></div>
+              <div><span class="ok">落盘</span><span class="path">导入核对清单.md</span></div>
+              <div><span class="ok">落盘</span><span class="path">说明\接缝核对与有效版本.md</span></div>
+            </div>
+            <p style="margin-top:10px"><code class="inline">检查_提示词.py</code> 六项全过：整数秒／秒数合计／每刀 ≥1.2／禁写词／下游消费齐全／景别交替。</p>
+            <p class="sm">请双击 <code class="inline">09 工具\流程.bat</code>（或 Pipeline.py 查 全部）检查一遍。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="files">
+    <div class="file must"><div class="ic">01</div><div><div class="nm">00_生产包入口.md</div><div class="ds">总览、文件清单、参数、导入顺序</div></div></div>
+    <div class="file must"><div class="ic">02</div><div><div class="nm">共用卡制卡词.md</div><div class="ds">所有图片的完整提示词，一张卡一段，四行齐</div></div></div>
+    <div class="file must"><div class="ic">03</div><div><div class="nm">单元\U01.md … Uxx.md</div><div class="ds">每单元：五行头部 ＋ 完整视频提示词，逐刀写硬切</div></div></div>
+    <div class="file must"><div class="ic">04</div><div><div class="nm">导入核对清单.md</div><div class="ds">每张图的父图、输出名、参数、字符数</div></div></div>
+    <div class="file must"><div class="ic">05</div><div><div class="nm">说明\接缝核对与有效版本.md</div><div class="ds">核对记录、修了什么、未决项</div></div></div>
+    <div class="file"><div class="ic">图</div><div><div class="nm">_验收\体检单.png</div><div class="ds">这一段结束，前五行应该全绿</div></div></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>单元数查表，不靠感觉</h3>
+  <table class="tbl">
+    <tr><th>成片时长</th><th>20–35 秒</th><th>36–50 秒</th><th>51–70 秒</th><th>71–95 秒</th></tr>
+    <tr><td><b>单元数（含 U01）</b></td><td>3–4 个</td><td>4–5 个</td><td>5–6 个</td><td>6–8 个</td></tr>
+  </table>
+  <p class="lead2">算法：<code class="inline">1 ＋ ⌈(生成总时长 − U01 生成秒) ÷ 15⌉</code>。U01 只有 T÷0.867 秒，占不满 15，所以不能直接拿生成总时长 ÷ 15，那样会少算一个。</p>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">验收闸门 · 生产单元</div><div class="sub">这一段红灯最多</div><div class="grow"></div><div class="cnt" data-gate="g5">0 / 7</div></div>
+    <div class="chk-l" data-gate="g5">
+      <label class="chk"><input type="checkbox" id="c5-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>单元数落在查表区间内；超出时写清了"为什么不能并"</b><small>超出又给不出理由，就是划碎。盒子越短，每刀被拉得越长，废动作越多。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每盒生成秒是整数，4–15（常规 13–15 装满）</b><small>10.6 这种提交不上去。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>刀数 ＝ 这一盒覆盖段的机位数合计；每刀素材秒 ≥1.2</b><small>机位数拿不到才按生成秒 ÷ 2。别自己编刀数往上凑。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每盒交了一张景别序列核对表，相邻没有一对相同</b><small>相同 ＝ 切点消失，两刀被模型连成一条。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-5"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每条提示词 ≤4096 字符（按 CRLF 保守值算）</b><small>超了平台直接截断，后半段动作全丢。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-6"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>每张卡参考图 ≤4 张，比例默认 3:2</b><small>3:2 的参考图完全能出 9:16 视频。全写 9:16 是上次踩过的坑。</small></span></label>
+      <label class="chk"><input type="checkbox" id="c5-7"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b><code class="inline">检查_提示词.py</code> 六项全过（退出码 0）</b><small>整数秒／秒数合计／每刀 ≥1.2／禁写词／下游消费齐全／景别交替。</small></span></label>
+    </div>
+  </div>
+
+  <div class="verdict go"><div class="ic">✓</div><div class="c"><b>可以关掉这个对话框了，当且仅当：</b>体检单前五行（①②③④⑤）全绿。全绿之前不要去平台点生成。</div></div>
+  <div class="verdict stop"><div class="ic">×</div><div class="c"><b>出现这些就退回：</b>没先报单元规划表就开始写词 ／ 单元数比查表多 2 个以上 ／ 某个单元生成 6 秒、成片只取 0.3 秒（划碎了）。</div></div>
+</section>
+
+<!-- ══════════ ⑥ 生成与导入 ══════════ -->
+<section id="s7">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no">6</div><div class="lbl">第 ⑥ 段</div></div>
+    <h2>生成与导入：AI 到这里下班</h2>
+    <p class="one">剩下全是点鼠标，但顺序错了会白干。这一步需要账号和额度，AI 拿不到，也替你付不了费。</p>
+    <div class="meta"><span>人做</span><span>1–3 小时</span><span class="hi">不开对话框</span><span>写 生成\ 导入\</span></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>顺序不能乱</h3>
+  <div class="flowmap" style="padding:18px">
+    <div class="fm-row">
+      <div class="fm-node"><b>先出图</b><i>共用卡制卡词</i></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>审图</b><i>30 秒一张</i></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>出视频</b><i>单元\Uxx</i></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node"><b>审视频</b><i>7 条</i></div>
+      <div class="fm-arrow">›</div>
+      <div class="fm-node ac"><b>导入剪辑</b><i>按清单顺序</i></div>
+    </div>
+    <div class="fm-cap">为什么不能先出视频：视频要用图当参考。<b>图不对，视频全废。</b>为什么每批都要审：一张错图会污染后面三四个视频。</div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>审图 6 条 / 审视频 7 条</h3>
+  <div class="files" style="grid-template-columns:1fr 1fr">
+    <div class="file" style="display:block"><div class="nm" style="margin-bottom:6px">审图（每张 30 秒）</div><div class="ds" style="line-height:1.9">场景关系对吗／尺度感对吗／主体颜色数量朝向对吗／道具该在的在不在／有没有画面内文字／有没有多余的人</div></div>
+    <div class="file" style="display:block"><div class="nm" style="margin-bottom:6px">审视频</div><div class="ds" style="line-height:1.9">时长对不对／有没有变脸／跨段物件纹理有没有变／场景有没有被拉宽／旁白在不在／有没有画面文字／硬切处接不接得上</div></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>不成功怎么办：别全片推倒</h3>
+  <table class="tbl">
+    <tr><th style="width:200px">坏在哪</th><th>怎么修</th></tr>
+    <tr><td>只有声音不对</td><td>只补那一段的声音</td></tr>
+    <tr><td>只有字幕不对</td><td>字幕本来就是后期加的，改后期</td></tr>
+    <tr><td>只有局部镜头烂</td><td>只重生成那个镜头，或最小拆分那一个单元</td></tr>
+    <tr><td>整段都不对</td><td>才考虑重做这一段</td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>剪完必填：剪辑留痕<span class="hint">一行一刀</span></h3>
+  <p class="lead2">剪刀落在哪一秒，就是观众会划走的那一秒。这是全流程最便宜、也最贵的一份数据——便宜到剪的时候顺手记一行，贵到没有任何方法论能替代。</p>
+  <div class="chat" style="margin:14px 0">
+    <div class="chat-bar"><div class="lights"><i></i><i></i><i></i></div><div class="title">导入\剪辑留痕.csv</div><div class="grow"></div></div>
+    <div class="chat-body" style="padding:14px">
+      <div class="log" style="font-size:11.5px;line-height:2">
+        刀号,设计素材秒,成片接纳秒,剪掉秒,保留%,剪掉的原因<br>
+        N01,3.0,2.6,0.4,87,节奏需要<br>
+        N02,2.2,1.1,1.1,50,动作演完了<br>
+        N08,2.0,0.9,1.1,45,空转<br>
+        <span style="color:#8a929e">… 累加三行写在末尾：设计素材总秒 / 成片总秒 / 整体保留率</span>
+      </div>
+      <p class="sm" style="margin-top:10px;color:#4c5563">「剪掉的原因」只许填四类：<b>动作演完了 ／ 空转 ／ 看起来假 ／ 节奏需要</b>。填别的等于没填，因为下次不能统计。</p>
+    </div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>剪完必跑：取用率</h3>
+  <div class="nums">
+    <div class="num"><b>0.80–0.90</b><span>取用率 ＝ 成片总秒 ÷ 素材总秒<br>低于 0.80 = 素材里大量空转</span></div>
+    <div class="num"><b>≤ 原片 ×1.15</b><span>每镜秒数（主指标）<br>密度不够就是刀数少了，回第②段</span></div>
+    <div class="num"><b>N 镜 / N−1 内切点</b><span>单个连续单元内部的计数关系<br>检测候选须看片复核，缺切点先查原因</span></div>
+  </div>
+  <div class="warn"><span class="ttl">这一条曾经没进任何一步的必做项</span>结果 B0011 做完当天没有被拦下来：设计 36 刀 × 1.73 秒 ＝ 62 秒素材，成片 30.9 秒，取用率 <b>41%</b>。那 41% 不是被剪掉的，是设计时就空着的。</div>
+</section>
+
+<!-- ══════════ ⑦ 复盘 ══════════ -->
+<section id="s8">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no">7</div><div class="lbl">第 ⑦ 段</div></div>
+    <h2>复盘：不回填，方法有效性就永远没有证据</h2>
+    <p class="one">前三条片子的成片和素材都在，但一条都没进档案。结果就是每次改指令只能靠感觉和争论。</p>
+    <div class="meta"><span>人＋AI</span><span>20 分钟</span><span class="hi">片子做完就填</span></div>
+  </div>
+
+  <h3 class="blk"><span class="dot"></span>生产侧 8 项<span class="hint">不依赖发布，做完就能填</span></h3>
+  <table class="tbl">
+    <tr><th style="width:40px">#</th><th style="width:300px">填什么</th><th>怎么算</th></tr>
+    <tr><td>1</td><td>计划成片时长 / 实际成片时长</td><td>秒，到 0.1。<b>用 ffprobe 量实际文件，不抄计划值</b></td></tr>
+    <tr><td>2</td><td>计划几个单元 / 实际几个单元</td><td>个数</td></tr>
+    <tr><td>3</td><td>每单元生成秒 / 实际取用秒</td><td>逐单元列，不许只给合计</td></tr>
+    <tr><td>4</td><td>生成素材总秒数</td><td>各单元生成秒相加</td></tr>
+    <tr><td>5</td><td>取用率</td><td>实际成片 ÷ 生成素材总秒数</td></tr>
+    <tr><td>6</td><td>重做了几个单元、为什么</td><td>首帧错／动作漏／道具错／人物脸不像／其他</td></tr>
+    <tr><td>7</td><td>单元时长分布</td><td>最短／最长／中位</td></tr>
+    <tr><td>8</td><td>和上一版比的差异</td><td>单元数变了几、为什么变</td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>发布侧 4 项<span class="hint">13.5 小时、24 小时各采一次</span></h3>
+  <p class="lead2">播放量（注明采样时间）／ Viewed 百分比 ＋ 平均观看时长（两个都要）／ 划走率／ 评论里的<b>具体原话</b>（抄原话，不要概括成"反响不错"）。</p>
+
+  <h3 class="blk"><span class="dot"></span>存三处</h3>
+  <table class="tbl">
+    <tr><td><code class="inline">02_逐视频完整档案\ALEX-S0xx_短名\07_单条证据化复盘.md</code></td><td>本片档案</td></tr>
+    <tr><td><code class="inline">02_逐视频完整档案\视频档案索引.csv</code></td><td>加一行</td></tr>
+    <tr><td><code class="inline">01_频道总览\当前实验台账.csv</code></td><td>加一行，写清这一条的唯一变量是什么</td></tr>
+  </table>
+
+  <div class="note">
+    <span class="ttl">判定方法有没有效，只看三件事</span>
+    <b>一、取用率按现行口径核对 0.80–0.90。</b>偏低先查空转、废动作和分组，不直接断言一定是模型或划碎问题。<br>
+    <b>二、单元数沿用当前规划口径。</b>20–35 秒 3–4 组、36–50 秒 4–5 组、51–70 秒 5–6 组、71–95 秒 6–8 组；含 U01，仍需逐盒对账。<br>
+    <b>三、记录重做集中在哪个单元。</b>这是定位下一轮排查位置的线索，不是已证明的因果结论。<br>
+    这些检查说明生产执行情况，不证明视频一定起量；发布表现另行记录。
+  </div>
+
+  <div class="gate">
+    <div class="gate-h"><div class="ttl">收尾清单</div><div class="grow"></div><div class="cnt" data-gate="g7">0 / 4</div></div>
+    <div class="chk-l" data-gate="g7">
+      <label class="chk"><input type="checkbox" id="c7-1"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>剪辑留痕填完了</b>，四个原因只用那四类</span></label>
+      <label class="chk"><input type="checkbox" id="c7-2"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>取用率算出来了</b>，落在 0.80–0.90</span></label>
+      <label class="chk"><input type="checkbox" id="c7-3"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>档案、索引、台账各写了一行</b></span></label>
+      <label class="chk"><input type="checkbox" id="c7-4"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.6 2.6L9 1" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></span><span class="tx"><b>这条犯的错记进了踩坑清单</b>，写清"什么现象、为什么、下次怎么防"<small>这一件比记数据重要。</small></span></label>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 速查 ══════════ -->
+<section id="s9">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no">卡</div><div class="lbl">附录 A</div></div>
+    <h2>一页速查：五个对话框、七个环节</h2>
+    <p class="one">贴在显示器边上用的那一页。看不清就打印出来。</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th style="width:56px">段</th><th style="width:150px">指令</th><th style="width:150px">只改</th><th style="width:120px">前置</th><th style="width:180px">收</th><th>一句话闸门</th></tr>
+    <tr><td><b>①</b></td><td><code class="inline">1_拆解.txt</code><br><span style="color:#8a929e;font-size:11px">28,784 字</span></td><td><code class="inline">对标视频：</code></td><td>对标视频 ＋ 三句话</td><td>01_拆解\ 四份</td><td>骨架 7–9 环节、机位数合计≈切点＋1</td></tr>
+    <tr><td><b>②</b></td><td><code class="inline">2_复刻.txt</code><br><span style="color:#8a929e;font-size:11px">24,005 字</span></td><td><code class="inline">对标编号：</code></td><td>① 四份齐</td><td>01_微调大纲.md<br>定稿后 V 文件夹</td><td>审三件：骨架／四个数／起止秒</td></tr>
+    <tr><td><b>③</b></td><td><code class="inline">3_开头.txt</code><br><span style="color:#8a929e;font-size:11px">18,237 字</span></td><td><code class="inline">版本文件夹：</code><br><code class="inline">对标拆解目录：</code></td><td>RC01 身份图 ＋ 首帧</td><td>开头\ 三份 ＋ 共用卡 ＋ U01</td><td>首帧 ≥2 样异常、工序数 0</td></tr>
+    <tr><td><b>④</b></td><td><code class="inline">4_小分镜.txt</code><br><span style="color:#8a929e;font-size:11px">23,010 字</span></td><td><code class="inline">版本文件夹：</code><br><code class="inline">对标拆解目录：</code></td><td>设定书；已有开头交接则核对，无则按末态并行</td><td>分镜\ 三份 ＋ 两张图</td><td>每刀有下游、整条链念得通</td></tr>
+    <tr><td><b>⑤</b></td><td><code class="inline">5_生产单元.txt</code><br><span style="color:#8a929e;font-size:11px">33,816 字</span></td><td><code class="inline">版本文件夹：</code></td><td>两个交接都在</td><td>入口＋共用卡＋U01–Uxx＋清单＋说明</td><td>先报规划表，体检单前五行全绿</td></tr>
+    <tr><td><b>⑥</b></td><td style="color:#8a929e">人做</td><td>—</td><td>⑤ 全绿</td><td>生成\ 导入\</td><td>取用率 0.80–0.90</td></tr>
+    <tr><td><b>⑦</b></td><td style="color:#8a929e">人＋AI</td><td>—</td><td>片子已发</td><td>档案／索引／台账</td><td>三个数都是实测</td></tr>
+  </table>
+
+  <h3 class="blk"><span class="dot"></span>十个数字，背下来比查文档快</h3>
+  <div class="nums">
+    <div class="num"><b>4–15</b><span>生成秒必须是整数<br>常规 13–15 装满一组</span></div>
+    <div class="num"><b>≥1.2 秒</b><span>每刀素材秒下限<br>一盒刀数 ≤ 生成秒 ÷ 1.2</span></div>
+    <div class="num"><b>0.867</b><span>剪裁比<br>生成 15 秒 → 成片 13 秒</span></div>
+    <div class="num"><b>1.153</b><span>预算换算<br>成片 × 1.153 ＝ 生成</span></div>
+    <div class="num"><b>≤ 4096</b><span>单条提示词字符上限<br>按 CRLF 保守算</span></div>
+    <div class="num"><b>≤ 4 张</b><span>父图上限 ＝ 参考图上限<br>平台硬约束</span></div>
+    <div class="num"><b>3:2</b><span>参考卡默认比例<br>不是 9:16</span></div>
+    <div class="num"><b>7–9</b><span>骨架环节数<br>30 条就是没抽象</span></div>
+    <div class="num"><b>1.2–1.7 镜</b><span>原片每段机位数<br>不是 1.0</span></div>
+    <div class="num"><b>0.80–0.90</b><span>取用率合格区间<br>低于 0.70 查划碎</span></div>
+  </div>
+
+  <div class="note">
+    <span class="ttl">遇到两处写着不同的数，怎么判（不用开会）</span>
+    <b>一、数值冲突 → 以被引用文件为准。</b>去"唯一的家"查：动作单位表、素材秒、0.867、1.153、1.2 → <code class="inline">material-seconds.md</code>；整数秒、刀数口径 → <code class="inline">00_从这里开始.md</code> 第 4 节。别处的数一律视为过期。<br>
+    <b>二、闸门与方法冲突 → 闸门赢。</b>指令管"能不能过"，skill 管"怎么做好看"。能不能过优先于好不好看。<br>
+    <b>三、skill 有、指令没提 → 有效。</b>不是"没写就等于不要"，是指令漏引用了，补进依赖块即可。
+  </div>
+</section>
+
+<!-- ══════════ 坑 ══════════ -->
+<section id="s10">
+  <div class="st-head">
+    <div class="st-eyebrow"><div class="st-no">坑</div><div class="lbl">附录 B</div></div>
+    <h2>已经踩过的六个坑</h2>
+    <p class="one">清单里记的都是真实发生过的错，不是假设。八成你的问题它已经有了。</p>
+  </div>
+
+  <div class="pit"><div class="h">一列里住了两个量，成片掉了一半</div><div class="d">B0011 的组表只有一列叫「镜数」，填的是段数（17 组相加 36），同一个文件开头写「61 个镜头」。下游据此把 61 镜折成 36 刀，<b>成片从 62 秒掉到 31 秒</b>，四道闸没有一道报错。<br>现在分四个量：段数／镜数／刀数／每镜秒数，不许互相顶替。</div></div>
+
+  <div class="pit"><div class="h">散文里的参数，等于没写</div><div class="d">设定书第 2 节散文写「全景交代 → 近景做工」，但 4.5 逐刀表六列里没有「景别」列。下游现定，全部收到近景。<br><b>下游只抄表，不读散文。</b>任何下游要用的参数，必须在它要抄的那张表里有一列。</div></div>
+
+  <div class="pit"><div class="h">一个镜头塞八个动作，模型只做第一个</div><div class="d">28.9 秒的片子只装得下 20–25 个动作。2026-10-22 那条在<strong>设计阶段就写了 85 个</strong>，模型每个镜头只做第一个，剩下时间把做完的动作再做一遍——成片"一直在干活但不知道在干什么"。<br>一个动作 ＝ <b>一次可见的状态变化</b>；"伸手→抓→抬→放进袋"是 4 步，仍是 1 个动作。</div></div>
+
+  <div class="pit"><div class="h">两刀同为中景，七刀只切出四个</div><div class="d">2026-10-29 实测：两刀都写「中景」，中间那 4.2 秒被模型连成一条，7 个切点只剩 4 个。<br>相邻两刀景别必须不同（近↔中↔全），<b>只挪机位不算切</b>——观众看不见那个切。</div></div>
+
+  <div class="pit"><div class="h">开头写 20 英尺箱，后段画 40 英尺箱</div><div class="d">第 3 条片子，开头段自己理解一遍对标，小分镜再理解一遍，生产段又理解一遍——三遍想三样，接缝必然打架。等生产段核对时，后段已经全画完了。<br>所以有了第 ② 段复刻：<b>一次定死，三段只读设定书，不回头读拆解。</b></div></div>
+
+  <div class="pit"><div class="h">"演满"填出来的一秒，剪的时候全废</div><div class="d">B0011 设计 36 刀 × 1.73 秒 ＝ 62 秒素材，成片 30.9 秒，取用率 41%。那一刀 1.73 秒里动作只要 0.8 秒，剩下 0.9 秒被"演满"填成了废动作。<br><b>刀里没变化的那一秒，只能砍秒数或并进相邻刀，不许加动作。</b></div></div>
+
+  <div class="warn" style="margin-top:26px">
+    <span class="ttl">觉得不对，先做这两件事</span>
+    一、扫一遍 <code class="inline">09_附录B_踩过的坑.md</code>；二、双击桌面「视频验收」跑一次体检单，看是哪一行红。<br>
+    <b>不要先改指令，也不要先怪模型。</b>八成问题在这张清单里已经写了怎么防。
+  </div>
+</section>
+
+<footer>
+  <b>这份手册对应哪一版</b>：2026-10-29 · 指令（28,784 / 24,005 / 18,237 / 23,010 / 33,816 字）· 体检单六行 · 提示词检查六项<br>
+  <b>内容取自</b>：<code class="inline">00_从这里开始.md</code>、<code class="inline">02–07</code> 各步文档、五份指令顶部、<code class="inline">17_动作预算使用手册</code>、<code class="inline">40_犯过的错_全量清单</code>、B0011 真实交付物<br>
+  <b>改了流程怎么办</b>：这份手册是产物，不是源文件。先改 <code class="inline">指令\*.txt</code> 和各步 md，再回来改这里；改完核对上面五个字数。<br>
+  <b>打开方式</b>：可从流程导图顶部的「员工上手教程」进入，也可直接打开本文件；在线版与离线套件使用同一份教程内容。勾选进度仅保存在当前浏览器，不会自动同步给主管或其他设备。
+</footer>
+
+</div>
+</div>
+
+<div class="toast" id="toast">已复制</div>
+
+<script>
+(function(){
+  var KEY = 'vid-onboard-1029';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.chk input'));
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { state = {}; }
+
+  function gateOf(el){ return el.closest('.chk-l').getAttribute('data-gate'); }
+
+  function paint(){
+    var done = 0;
+    boxes.forEach(function(b){
+      if (b.checked) done++;
+    });
+    document.getElementById('pTxt').textContent = done + ' / ' + boxes.length;
+    document.getElementById('pBar').style.width = (boxes.length ? (done / boxes.length * 100) : 0) + '%';
+
+    var gates = {};
+    boxes.forEach(function(b){
+      var g = gateOf(b);
+      if (!gates[g]) gates[g] = {t:0, d:0};
+      gates[g].t++;
+      if (b.checked) gates[g].d++;
+    });
+    Object.keys(gates).forEach(function(g){
+      var el = document.querySelector('.cnt[data-gate="' + g + '"]');
+      if (el) el.textContent = gates[g].d + ' / ' + gates[g].t;
+    });
+  }
+
+  boxes.forEach(function(b){
+    if (state[b.id]) b.checked = true;
+    b.addEventListener('change', function(){
+      state[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+      paint();
+    });
+  });
+
+  var reset = document.getElementById('btnReset');
+  if (reset) reset.addEventListener('click', function(){
+    boxes.forEach(function(b){ b.checked = false; });
+    state = {};
+    try { localStorage.removeItem(KEY); } catch(e) {}
+    paint();
+  });
+
+  paint();
+
+  // 侧栏高亮
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        links.forEach(function(a){ a.classList.remove('on'); });
+        var hit = links.filter(function(a){ return a.getAttribute('href') === '#' + en.target.id; })[0];
+        if (hit) hit.classList.add('on');
+      });
+    }, {rootMargin: '-15% 0px -75% 0px', threshold: 0});
+    secs.forEach(function(s){ io.observe(s); });
+  }
+
+  // 复制路径
+  var toast = document.getElementById('toast');
+  function say(t){
+    toast.textContent = t;
+    toast.classList.add('on');
+    clearTimeout(window.__tt);
+    window.__tt = setTimeout(function(){ toast.classList.remove('on'); }, 1400);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+    btn.addEventListener('click', function(){
+      var txt = btn.getAttribute('data-copy');
+      function fallback(){
+        var ta = document.createElement('textarea');
+        ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); say('已复制：' + txt); }
+        catch(e) { say('复制失败，请手动选中'); }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function(){ say('已复制：' + txt); }, fallback);
+      } else { fallback(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
