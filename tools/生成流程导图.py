@@ -1711,7 +1711,7 @@ details[open]>summary::before{content:"▾ "}
   <h1>视频生产流程导图</h1>
   <span class="sub">七段流水线 · 五个可复制指令</span>
   <span class="grow"></span>
-  <a class="btn pri" id="employeeTutorial" href="65_上岗手册_对话版_20261029.html" style="text-decoration:none;white-space:nowrap">员工上手教程</a>
+  <a class="btn pri" id="employeeTutorial" href="65_上岗手册_对话版_20261029.html" style="text-decoration:none;white-space:nowrap">新手教程</a>
   <button class="btn" id="btnExpand">全部展开</button>
   <button class="btn" id="btnCollapse">全部收起</button>
   <button class="btn pri" id="btnExport">导出全部为 Markdown</button>
