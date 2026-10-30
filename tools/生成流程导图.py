@@ -11,10 +11,11 @@
 改了 .txt 之后重跑一次，网页里的指令自动同步。
 节点内容（NODES）改这个脚本就行。
 """
-import datetime, io, json, os, sys
+import datetime, html as html_lib, io, json, os, re, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TPL = os.path.join(BASE, "指令")
+IS_DISTRIBUTION = os.path.isdir(os.path.join(BASE, "指令"))
+TPL = os.path.join(BASE, "指令" if IS_DISTRIBUTION else "指令模板_v3")
 OUT = os.path.join(BASE, "流程导图.html")
 
 INSTR_FILES = {
@@ -74,20 +75,25 @@ NODES = [
                 ["⑤ 生产单元", "同上", "设定书、开头交接、分镜交接", "根目录、单元\\、说明\\"],
             ],
         },
-        "note": "每份指令都只有一个地方要改：顶部那一行。其他全用相对路径。",
+        "note": "每份指令都只在顶部改路径：① 一行（对标视频）／② 一行（对标编号）／③④ 两行（版本文件夹＋对标拆解目录）／⑤ 一行（版本文件夹）。其他全用相对路径。",
     },
 
     {
         "id": "maintenance",
-        "title": "主管工入口：修改流程与同步发布",
-        "tag": "维护时必读",
-        "summary": "修改通用指令、skill 或模板前，先读 48_流程维护与发布_给所有AI.md；不是只在聊天里改。",
+        "title": "完整发布：整套更新与主管工规则",
+        "tag": "维护与发布必读",
+        "rulekey": "maintenance",
+        "summary": "先读48号维护规则，再核对整套内容、补齐脚本依赖、重新构建，分别更新并核对GitHub和现有网站。下方可复制完整发布指令。", 
         "points": [
             "作者源目录改原始指令、skill、项目模板和对应说明；下载包只是分发副本，不能当成作者源头。具体目录名按 48 号文区分，不从网页猜。", 
             "先核对所有受影响的规则和引用；新增普通规则文档必须检查打包清单。不要改构建副本或手改生成好的 HTML。",
             "保存不会自动上传，未启用每日定时同步。获得用户本轮发布同意后，使用原桌面同步按钮或现有同步脚本。",
             "按钮会自动生成导图、构建、推送并核对远程；只打包或本地测试不等于发布。固定仓库是 laozhanggw/video-flow-kit，已获准公开。",
-            "AGENTS.md、CLAUDE.md 是短入口；是否自动加载取决于宿主。已经打开的旧对话仍需明确重新读取 48 号文。",
+            "完整发布不只看本对话：五份指令、skills附件、模板、规则教程、Pipeline、体检、抽查、检查器、看板及内部依赖都要核对；漏项修到正式构建器。",
+            "全套核验范围不等于整个个人工作盘：不发布凭据、账号、私人项目、原片、备份和作者专用账号发布工具。",
+            "发布后对照新构建、本地提交和远程树核验文件集合与内容；GitHub与网站分别验收，不拿打包成功当上传成功。",
+            "下方完整规则和发布指令直接读取48号文件，避免网站另存一份过期标准。网页文字本身不是用户授权。",
+            "AGENTS.md、CLAUDE.md 是短入口；是否自动加载取决于宿主。已经打开的旧对话仍需明确重新读取 48 号文。", 
         ],
         "note": "给旧主管工的一句话：请重新读取流程规范目录中的 48_流程维护与发布_给所有AI.md，以后维护通用指令和 skill 按它执行。",
     },
@@ -125,7 +131,7 @@ NODES = [
         "tag": "最新·必读",
         "summary": "给接手的人：这些不是设想出来的风险，是已经付过钱的事故。看完再动手，能省掉一半返工。",
         "points": [
-            "**A1 只改磁盘不改网站。** 人复制的是网页，网页是快照。改完 `指令\\*.txt` 必须重跑 `tools\\生成流程导图.py`，再跑 `09 工具\\检查_导图同步.py`，退出码 0 才算改完。**犯过两次**：2026-10-27 一整天改的 14 处全在磁盘，网页停在 10-26，人复制到的全是旧规则。",
+            "**A1 只改磁盘不改网站。** 人复制的是网页，网页是快照。改完 `指令\\*.txt` 必须重跑 `tools\\生成流程导图.py`，再跑 `{{ROOT}}/tools/检查_导图同步.py`，退出码 0 才算改完。**犯过两次**：2026-10-27 一整天改的 14 处全在磁盘，网页停在 10-26，人复制到的全是旧规则。",
             "**A2 同一个规则有好几个数。** 2026-10-27 一天里就出现三组：剪裁比同时有 0.83／0.85／0.87；单段时长同时有 4–10／4–15；刀数同时有 2–4／6–7。**AI 一定挑最宽的那个执行，而且检查工具还在查旧数。** 改口径必须连指令、skill、检查脚本、网页一起搜一遍。",
             "**A3 把一次实测的结论套到没测过的地方（今天最大的一个错）。** 「9 次生成实测，长盒全失败」——那 9 条样本**全部是单镜头盒、0 刀**，只能证明「一条连续镜头塞 3–4 件事会丢件」。它被写成了「长盒必废 → 一盒 4–10 秒 → 2–4 刀 → 一盒一工序」，一路错了整整一天。**每条规则都要能回答：这是谁、在哪一次生成里测出来的？答不上来就只是猜想。**",
             "**A4 用一句解释代替画面里的证据。** 写「其他栏板都已装好，只剩他手里这一块没扣」，模型照做了前半句，把整排栏板画全，**手里那块板丢了，只剩两只手扶着栏杆空转 2.2 秒**。改成画面里看得见的物件——「远端还斜着翘在外面、没扣进槽」——同一刀就成立了。",
@@ -164,6 +170,24 @@ NODES = [
             "**▸ 五段衔接审计（2026-10-27 19:03 修完 4 个问题）**：五个环节在不同对话框里跑，中间只靠文件传递，交接处最容易漏。① **`01_微调大纲.md` 原被下游明确标成「可以不读」**——但设定书 4.5 只写「从 X 变成 Y」的状态键值，装不下「她一手死抓钢索、另一只手把孩子按住、她没有喊只是喘」，小分镜只读设定书就只剩「跪坐不动」→ **改为 ④⑤ 必读第 2 节**。② `开头方案_有效.md` 没有下游读（小分镜只读交接）→ 交接必须覆盖方案的七项。③ `改动影响清单.md` 被 ⑤ 读但用不上（那是 ④ 的思考记录）→ 改为不必读。④ 人读版给谁读没写清 → 各段明确「人读版下游不读」。",
         ],
         "note": "格式全文与两份样例（④ 小分镜、⑤ 生产单元完整写出来）见 `38_人读版_统一格式_20261027.md`。五份指令末尾都加了这一节，缺人读版不算交稿。",
+    },
+
+    {
+        "id": "d0-h",
+        "title": "★ 交接四铁律（五个对话框之间唯一靠得住的东西）",
+        "tag": "2026-10-29 新增·必读",
+        "summary": "五个环节在五个对话框里跑，中间只有文件、没有共同记忆。每一处交接都可能掉东西，而且掉的时候没有任何一方知道自己掉了。下面四条是每段交稿的合格线。",
+        "points": [
+            "**铁律 1｜总结可以，删内容不行；删了必须留痕。** 每一段都是对上一段的总结，总结一定丢细节，这没办法。能做的只有一件事：**丢掉的每一块都要在表里留下痕迹**，让人查得出来。落地：4.5 表加「原片镜号／覆盖原片时段」两列，同一镜号不许留洞；素材秒按覆盖时段算，不按整镜算。",
+            "**全片总数对得上，不代表没丢东西。** B0013 全片动作 40 对原片 34（+17.6%，正好在 ±20% 容差内通过），可开头那一段是 3 个动作掉到 2 个（−33%）。**局部丢失会被总数平均掉**，所以闸门必须分镜查，不能只查全片。",
+            "**铁律 2｜一个量只有一个名字。** 同名不同义比数值冲突更难查。`T_钩`＝观众看懂的那一刻（① 定，只用于抽帧和微段表）；`T_段`＝原片首个动作段那一镜的结束秒（② 定，设定书只写这个）。两个数经常不相等，而且都对。B0013 因此白花一轮去「裁决 3.0 还是 4.0」。",
+            "**判据：两个数都能自圆其说，就不是数值冲突，是名字没分清。** 先分清名字，再谈数。真的同一个量在两份文件里写成两个值，才算冲突。",
+            "**铁律 3｜交付只认正式文件。** 修订直接改正式路径，**不许放进 `_修正\\` 再让用户手动覆盖**——留一个「等用户粘命令」的尾巴，等于这一版没交。同一种交付物全流程只许一份，留旧版进 `_历史\\` 并带版本号，不许两个同名文件靠「看大小/看时间」分辨。",
+            "**`单元\\U01.md` 归 ③ 开头独占**，⑤ 只读不写，重建和找回文件时也不许重写。B0013 就是改好的 U01 停在 `_修正\\09_U01.md`，正式文件一直是旧版，最后拍的就是旧版。",
+            "**铁律 4｜未核不是没有；红灯不许自己解释掉。** 上游写「未核」＝没去看，不许翻译成「无」「没有」「静音」。机器报红只许三种处理：**改到绿 ／ 进待裁决并标「未通过」／ 报 BLOCKED**，不许写「这是刻意改动，不是错」——放不放行不是执行者能判的。",
+            "**B0013 的两条实证**：① 拆解写「声音全部未核」，下游写成「无对白」，成片成了默片，而原片开头是两个人隔着栏对骂；② 看板已经报出「第2镜景别不一致：对标全景／我们近景」，被解释成「设定书刻意改动」放行，两轮后自己推翻——原片两刀都是全景。",
+        ],
+        "note": "四条铁律的正文在 `00_从这里开始.md` 第五点四节；五份指令末尾各有一段具体到本段的执行条款，并以「违反任一条这一版算没交」收口。",
     },
 
     # ══════════════ 1 拆解复刻 ══════════════
@@ -442,7 +466,7 @@ NODES = [
                                 ["3 骨架主表", "段 / 秒 / 原片画面 / 结构一致吗 / 意思一致吗 / 第一眼读到什么"],
                                 ["4 本版逐段表", "十一列，含情绪、强度、载体、变了什么＋理由、最易生成错什么"],
                                 ["4.1 T 秒末态十项键值", "十项，一项不许空。第④段逐项对上"],
-                                ["4.5 逐刀动作预算表", "六列：刀号 / 起止秒 / 从X变成Y / 那一个动作 / 位移 / 动作数（0 或 1）。全表合计≈原片动作数 ±20%"],
+                                ["4.5 逐刀动作预算表", "九列：刀号 / **原片镜号** / **覆盖原片时段** / 起止秒 / 从X变成Y / 那一个动作 / 位移 / 动作数（0 或 1） / 景别·画面范围。全表合计≈原片动作数 ±20%；同一镜号的覆盖时段不许留洞"],
                                 ["5 情绪节拍表", "十列，全批共用"],
                                 ["6 表面清单八项", "C1–C8 本版值"],
                                 ["7 七问结论", "七条"],
@@ -815,7 +839,7 @@ NODES = [
                 "summary": "这五条能量化地判断一段到底写完没有。",
                 "points": [
                     "第 4 栏「那一个动作」只许一句话、不超过 40 字，动作数恒为 1。出现「先…再…然后…」就是超了。",
-                    "动作数 ÷ 秒数 ≤ 本条原片基准 ×1.2。基准用 09 工具\\检查_动作预算.py --baseline 算。",
+                    "动作数 ÷ 秒数 ≤ 本条原片基准 ×1.2。基准用 {{ROOT}}/tools/检查_动作预算.py --baseline 算。",
                     "第②栏必须出现具体动词和接触对象。不许出现「处理」「操作」「施工」「完成」「快速推进」。写一个准确的动词，不是写一串动词。",
                     "声音必须三类分开写：动作声 / 环境声 / 音乐。缺一类就是没写。",
                     "每段正文不少于 150 字，但字数只能由起点状态、终点状态、机位、声音、AI 风险凑，不许用动作步骤凑。",
@@ -1159,7 +1183,7 @@ NODES = [
                     "提示词是否达到可直接提交程度",
                     "差额是否只写了「剪辑余量」这类空话",
                 ],
-                "note": "总控负责收口，人不逐个去找子任务。环境开不了独立检查，就明确写「未做独立检查」，不许用自检冒充。前三项可以先用 `09 工具\\检查_动作预算.py` 跑一遍再交人；取用率三项由 `检查_交付物.py` 的 e 段直接查。",
+                "note": "总控负责收口，人不逐个去找子任务。环境开不了独立检查，就明确写「未做独立检查」，不许用自检冒充。前三项可以先用 `{{ROOT}}/tools/检查_动作预算.py` 跑一遍再交人；取用率三项由 `检查_交付物.py` 的 e 段直接查。",
             },
             {
                 "id": "d4-12",
@@ -1188,7 +1212,7 @@ NODES = [
                 "summary": "全在 5_生产单元.txt 里，都是实测摔出来的，不是设想。",
                 "points": [
                     "**① 内部硬切装 6–7 刀（13–15 秒一组），每刀约 2 秒，相邻两刀景别必须真的不同。**（2026-10-27 晚定稿：旧口径「2–4 刀、每刀 ≥2 秒」已撤销）以前指令里同时写着「不写内部切镜」和「必写内部硬切」，两句打架，结果永远写成一条连续长镜头——这就是改五轮措辞都没用的原因。",
-                    "**② 动作来源闸门**：每刀的动作只能来自小分镜第 ② 节的「那一个动作／接触对象／终点状态」。三处都没有的（擦汗、直起腰、后退半步、看一眼成果、把工具戳地上、走过来站住）一律不许写。工具：`09 工具\\检查_动作来源.py`，退出码 0 才许交稿。",
+                    "**② 动作来源闸门**：每刀的动作只能来自小分镜第 ② 节的「那一个动作／接触对象／终点状态」。三处都没有的（擦汗、直起腰、后退半步、看一眼成果、把工具戳地上、走过来站住）一律不许写。工具：`{{ROOT}}/tools/检查_动作来源.py`，退出码 0 才许交稿。",
                     "**③ 状态跳跃定律**（最靠上游）：一刀要的状态，只能用三种合法出口之一——上一刀已经看见 / 这一刀自己演得完 / 结果镜头静态重新起手。第四种（省略大量工作但入口仍延续上刀的人）不合法，模型会自己补一段走位把它填上，填出来的全是要剪掉的。",
                     "**成本账（2026-10-27 晚修正归因）**：一盒塞四道工序、15 秒 5 刀废掉 35%，病根不是「塞得满」，是第 3 刀要求了上一刀没建立的状态。同日反证：U04_v01 12 秒 4 刀、跨 3 个工序，三个切点一帧干净。所以修法是三条合法出口，不是「拆成一盒一工序」——一盒一工序会把每刀拉到 4–5 秒，正好造出傻站。",
                     "**交付前必做覆盖对账（三行算术）**：① 各刀成片秒之和 = 该单元计划覆盖的分镜时长 ② 各单元成片秒之和 = 全片总时长 ③ 每一刀 N 被且只被一个单元覆盖。10-27 就是这么查出 U04 漏了 N08 架梁框 2.633 秒的。",
@@ -1267,7 +1291,7 @@ NODES = [
                     "同一个概念在两个文件里写了两遍 —— 必然有一天两边不一致。",
                     "把「要求」当成「闸门」—— 「要写得少一点」是形容词，AI 和人都会忘；「退出码必须是 0」忘不了。10-22 那条片子的防过度拆分全文躺在指令里，照样划了 16 个单元。",
                     "只改磁盘不改网站 —— 你实际复制的是网页上那份。每次改完 .txt 必须重跑生成器，再核对字数。**10-27 又犯了一次：一整天改的全在 txt 上，网页还是前一天 13:04 生成的，人复制到的全是旧规则。**",
-                    "「记得重跑」不算防住 —— 现在有 `09 工具\\检查_导图同步.py`：比对网页内嵌字数与本机 txt 实际字数，不一致退出码 1。改完 .txt 必须跑它。",
+                    "「记得重跑」不算防住 —— 现在有 `{{ROOT}}/tools/检查_导图同步.py`：比对网页内嵌字数与本机 txt 实际字数，不一致退出码 1。改完 .txt 必须跑它。",
                     "**同一份指令里两套口径并存，AI 一定挑宽的那个** —— `5_生产单元.txt` 曾有 8 处写「4–15 秒」、1 处写「4–10 秒」，结果做出 15 秒 5 刀的盒子。**但 10-27 晚查到，真正的问题不是那两套口径谁宽，而是「4–10 秒 + 2–4 刀 + 一盒一工序」三条本身没有实测依据**：它们来自单镜头盒的丢件样本（9 次里 0 刀），却被当成多刀盒的铁律；同一天 12 秒 4 刀、11 秒 4 刀两条反证切点全干净。改口径必须全文搜一遍，更要问一句「这条是谁测出来的」。",
                     "**指令和 skill 写着两套结构** —— `4_小分镜.txt` 同时写「按 skill 的七栏」和「每段 15 项」，AI 每次随机挑一套。同类共扫出 5 处（时长／刀数／一盒几件事／取用率两个数／50 张旧值）。",
                     "**把验收标准当成写作指令** —— 验收要逐项核对，写作要一次只想一件事。11 列的对照表里只有 2 列是写作用的；17 节里没有一节叫「大纲」。",
@@ -1326,7 +1350,7 @@ NODES = [
                     "出了什么错 → 记进「踩过的坑」，写清什么现象、为什么、下次怎么防。",
                     "哪句话 AI 理解错了 → 改对应的那份 .txt，不要只改记忆里的经验。",
                     "改完 .txt 重跑 `tools/生成流程导图.py`，这个网页自动同步。",
-                    "**重跑完必须再跑 `09 工具\\检查_导图同步.py`**，退出码 0 才算同步成功。只重跑不核对，等于没核对。",
+                    "**重跑完必须再跑 `{{ROOT}}/tools/检查_导图同步.py`**，退出码 0 才算同步成功。只重跑不核对，等于没核对。",
                     "**每条规则都要写清它值多少钱。** 定这条规则时烧了多少积分、错在哪个画面，写进 `40_犯过的错_全量清单_20261027.md`。将来有人想「优化掉」它，先来看这个数——**没有代价记录的规则，最先被删。**",
                     "后三段基本不动，要动也只调 skill，不动流程。",
                     "**遇到新问题，不要让人在对话框里补一段话——那句话只活在那个对话里。** 要问「这条该写进哪份 .txt」，写进去，重跑生成器。判断标准：如果换个片子、换个人、隔一周再跑，这条规则还在不在？不在，就等于没有。",
@@ -1355,7 +1379,7 @@ NODES = [
                     "head": ["段", "机器必查（必过项）", "机器查不了、必须人看"],
                     "rows": [
                         ["① 拆解", "四份产物齐；两份逐段表都有「状态变化/动作数/位移」三列；秒数连续无跳秒；段号连续；first_frame 是 0.000 秒那帧", "拆得对不对：这一刀的功能说得准不准；「未核」的地方是不是真的没核"],
-                        ["② 设定书", "十节齐全（含 4.5）；4.5 表六列；动作数只有 0/1；动作合计 ≈ 原片 ±20%；总时长 ≈ 原片 ±15%", "表面八项换得够不够（会不会被认成同一条）；七问答的是不是真话"],
+                        ["② 设定书", "十节齐全（含 4.5）；4.5 表九列；动作数只有 0/1；动作合计 ≈ 原片 ±20%；**同一镜号的「覆盖原片时段」首尾相接、不留洞、不重叠**；**素材秒 ≤ 覆盖时长×1.3**；总时长 ≈ 原片 ±15%", "表面八项换得够不够（会不会被认成同一条）；七问答的是不是真话；**原片那几件事有没有在「合成一句话」的时候悄悄没了**"],
                         ["③ 开头", "逐段表有「那一个动作」和「动作数」；对照表 12 行；T ÷ 全片在 12–18%；首帧五要素；**U01 刀数 ＝ 生成秒 ÷ 2、时间轴铺满、相邻刀景别不同**", "环节选对没有（原片是「问题出现」，你别做成「连续修」）；情绪递进是不是硬编的；U01 每一刀手上是不是一直有事做"],
                         ["④ 小分镜", "N 编号连续；秒数连续；每刀有动作数；**每刀同时有素材秒和成片秒**；无占位符；动作预算闸门", "每一刀观众能不能看懂因果：手里拿的什么、从哪来、做完哪里变了"],
                         ["⑤ 生产单元", "单元表三列；单元数落在硬表；每盒 13–15 秒装 6–7 刀；位移刀不在最后一刀；盒级取用率 ≥60%；Prompt ≤4096；参考图 ≤4", "单元合并得合不合理；每刀是不是真能演满 2 秒；参考图之间会不会打架"],
@@ -1372,7 +1396,7 @@ NODES = [
                     "结论图：`体检.py` 生成 `_验收\\体检单.png`，六行，绿/红/灰。",
                     "过程图：`看板_环节.py`（②③④⑤各有参数）或 `看板_对比.py`（⑥成片并排）。",
                     "结论图给「能不能往下走」；过程图给「这一段做到几成」。两张一起看，别看文字。",
-                    "你想自己跑一次也行：把版本文件夹拖到 `09 工具\\体检.bat` 上。",
+                    "你想自己跑一次也行：把版本文件夹拖到 `{{ROOT}}/tools/体检.bat` 上。",
                 ],
                 "pitfalls": [
                     "只跑一次就完事 —— 每改一版都要重跑，改完的内容可能又出新问题。",
@@ -1435,7 +1459,7 @@ NODES = [
                         ["⑥ 成片", "并排缩略图 + 三段时间条", "看板_对比.py"],
                     ],
                 },
-                "note": "路径（不要改成相对路径）：工具 `E:\\智线出海内容运营\\09 工具\\`；结论图 `E:\\智线出海内容运营\\09 工具\\体检.py`；总闸门 `E:\\智线出海内容运营\\09 工具\\Pipeline.py`；项目根 `E:\\智线出海内容运营\\13_内容复盘\\YouTube\\我的频道全套数据\\06_制作对话与决策\\`。",
+                "note": "路径（不要改成相对路径）：工具 `{{ROOT}}/tools/`；结论图 `{{ROOT}}/tools/体检.py`；总闸门 `{{ROOT}}/tools/Pipeline.py`；项目根 `{{ROOT}}/_项目/`。",
             },
         ],
     },
@@ -1469,8 +1493,7 @@ def load_instructions():
     for k, fn in INSTR_FILES.items():
         p = os.path.join(TPL, fn)
         if not os.path.exists(p):
-            print("缺文件:", p)
-            continue
+            raise FileNotFoundError("缺指令文件：" + p)
         data[k] = io.open(p, encoding="utf-8").read()
     return data
 
@@ -1480,18 +1503,59 @@ def load_skills():
     for key, rel, label in SKILL_FILES:
         p = os.path.join(SKILL_DIR, *rel.split("/"))
         if not os.path.exists(p):
-            print("缺 skill 文件:", p)
-            continue
+            raise FileNotFoundError("缺 skill 文件：" + p)
         data[key] = {"label": label, "path": "skills/" + rel,
                      "text": io.open(p, encoding="utf-8").read()}
     return data
 
 
+def distribution_nodes(value):
+    """节点文案使用当前配置根；不把配置前的作者地址带回网页。"""
+    if isinstance(value, list):
+        return [distribution_nodes(x) for x in value]
+    if isinstance(value, dict):
+        return {k: distribution_nodes(v) for k, v in value.items()}
+    if not isinstance(value, str) or not IS_DISTRIBUTION:
+        return value
+    root = BASE.replace("\\", "/") if os.path.isfile(os.path.join(BASE, ".路径配置.json")) else "{{ROOT}}"
+    source = r"E:\智线出海内容运营\13_内容复盘\YouTube\我的频道全套数据\06_制作对话与决策"
+    mappings = [(source + r"\00_视频生产流程规范_v1", root),
+                (r"E:\智线出海内容运营\09 工具", root + "/tools"),
+                (r"E:\智线出海内容运营\12_视频拆解内化\对标库", root + "/对标库"),
+                (source, root + "/_项目")]
+    for old, new in mappings:
+        parts = old.replace("\\", "/").split("/")
+        pattern = r"[/\\]+".join(re.escape(x) for x in parts)
+        value = re.sub(pattern, lambda m: new, value, flags=re.I)
+    value = value.replace("{{ROOT}}", root)
+    value = value.replace("指令模板_v3", "指令").replace("_项目骨架", "模板")
+    value = re.sub(r"09 工具[/\\]+", "tools/", value)
+    return value
+
+
+def load_maintenance():
+    """48号文件是规则及网站复制指令的单一源头，缺失就停止生成。"""
+    path = os.path.join(BASE, "48_流程维护与发布_给所有AI.md")
+    text = io.open(path, encoding="utf-8-sig").read()
+    match = re.search(r"<!-- FULL_RELEASE_PROMPT_START -->\s*```text\s*\n(.*?)\n```\s*<!-- FULL_RELEASE_PROMPT_END -->", text, re.S)
+    if not match:
+        raise ValueError("48号文缺少完整发布指令标记，停止生成网页。")
+    return {"path": os.path.basename(path), "text": text, "prompt": match.group(1).strip()}
+
+
 def build():
     instr = load_instructions()
     skills = load_skills()
-    payload = json.dumps({"nodes": NODES, "instr": instr, "skills": skills}, ensure_ascii=False)
+    maintenance = load_maintenance()
+    payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills, "maintenance": maintenance}, ensure_ascii=False).replace("</", "<\\/")
     html = HTML_TEMPLATE.replace("/*__DATA__*/", "const DATA = " + payload + ";")
+    # 无脚本阅读器和其他AI也能直接读取规则，不必执行页面JavaScript。
+    fallback = ('<noscript><section style="padding:24px;background:#f8fafc;color:#172033">'
+                '<h2>完整发布规则与可复制指令</h2><pre style="white-space:pre-wrap">' +
+                html_lib.escape(maintenance["prompt"]) + '</pre><details><summary>48号完整规则</summary>'
+                '<pre style="white-space:pre-wrap">' + html_lib.escape(maintenance["text"]) +
+                '</pre></details></section></noscript>')
+    html = html.replace("<!--__MAINTENANCE_FALLBACK__-->", fallback)
 
     # 版本条：生成时间 + 五份指令字数。字数即指纹，页面与 txt 对不上就说明没同步。
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1706,12 +1770,14 @@ details[open]>summary::before{content:"▾ "}
 </style>
 </head>
 <body>
+<!--__MAINTENANCE_FALLBACK__-->
 
 <header>
   <h1>视频生产流程导图</h1>
   <span class="sub">七段流水线 · 五个可复制指令</span>
   <span class="grow"></span>
   <a class="btn pri" id="employeeTutorial" href="65_上岗手册_对话版_20261029.html" style="text-decoration:none;white-space:nowrap">新手教程</a>
+  <button class="btn pri" id="btnFullRelease" onclick="location.hash='maintenance';go('maintenance')">完整发布规则／复制指令</button>
   <button class="btn" id="btnExpand">全部展开</button>
   <button class="btn" id="btnCollapse">全部收起</button>
   <button class="btn pri" id="btnExport">导出全部为 Markdown</button>
@@ -1866,6 +1932,16 @@ function renderView(){
     h += '</ul>';
   }
 
+  /* 完整维护规则与发布指令：直接来自48号源文件。 */
+  if(nd.rulekey === 'maintenance' && DATA.maintenance){
+    h += '<div class="copybar"><span class="lbl">发给其他主管工：整套更新，不只上传本对话修改</span>'+
+      '<button class="btn pri" id="copyFullRelease" onclick="copyText(DATA.maintenance.prompt)">复制完整发布指令</button></div>';
+    h += '<details open><summary>完整发布指令（用户本轮直接发送才表示授权）</summary><div class="code" style="background:#f3f6fa;color:#172033">'+esc(DATA.maintenance.prompt)+'</div></details>';
+    h += '<div class="copybar"><span class="lbl">唯一详细规则：'+esc(DATA.maintenance.path)+'</span>'+
+      '<button class="btn" onclick="copyText(DATA.maintenance.text)">复制48号完整规则</button></div>';
+    h += '<details><summary>展开48号完整规则（含范围、依赖、隔离验收和远程核对）</summary><div class="code" style="background:#f3f6fa;color:#172033">'+esc(DATA.maintenance.text)+'</div></details>';
+  }
+
   /* skill 全文：节点带 skillkey */
   if(nd.skillkey && DATA.skills && DATA.skills[nd.skillkey]){
     const sk = DATA.skills[nd.skillkey];
@@ -1949,6 +2025,7 @@ function nodeSnippet(id){
 function go(id){ curId=id; openIds.add(id); renderAll(); }
 
 function copyText(t){
+  if(!navigator.clipboard || !navigator.clipboard.writeText){ fallbackCopy(t); return; }
   navigator.clipboard.writeText(t).then(
     ()=>toast("已复制 "+t.length+" 字"),
     ()=>fallbackCopy(t)
@@ -2019,6 +2096,11 @@ document.getElementById("btnExport").onclick = ()=>{
     });
   }
 
+  if(DATA.maintenance){
+    out.push("\n---\n\n# 附三：完整发布指令与48号维护规则\n");
+    out.push("```text\n"+DATA.maintenance.prompt+"\n```\n");
+    out.push(DATA.maintenance.text);
+  }
   const t = out.join("\n");
   const blob = new Blob([t],{type:"text/markdown;charset=utf-8"});
   const a = document.createElement("a");
@@ -2042,6 +2124,8 @@ document.getElementById("btnCollapse").onclick = ()=>{
 /* 初始展开：总览 + 四个维度第一层 */
 openIds.add("g"); openIds.add("d1"); openIds.add("d1-1"); openIds.add("d1-2");
 openIds.add("d2"); openIds.add("d3"); openIds.add("d4"); openIds.add("d5");
+if(location.hash === '#maintenance'){curId='maintenance';openIds.add('maintenance');}
+window.addEventListener('hashchange',()=>{if(location.hash === '#maintenance') go('maintenance');});
 renderAll();
 </script>
 </body>

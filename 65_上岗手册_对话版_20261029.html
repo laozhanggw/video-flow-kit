@@ -346,6 +346,7 @@ footer b{color:var(--ink3);font-weight:600}
   <div class="brand">视频生产流程 · 上岗手册<span>对话版 / 2026-10-29</span></div>
   <div class="grow"></div>
   <a href="流程导图.html" id="backToFlow" style="font-size:12.5px;white-space:nowrap">返回流程导图</a>
+  <a href="流程导图.html#maintenance" id="fullReleaseRules" style="font-size:12.5px;white-space:nowrap">完整发布规则／复制指令</a>
   <button onclick="window.print()">打印 / 存 PDF</button>
   <button id="btnReset">清空勾选</button>
 </div>
@@ -848,7 +849,7 @@ footer b{color:var(--ink3);font-weight:600}
     <div class="report-h"><div class="t">视频体检单</div><div class="s">V01_neighbor_garden_war　·　10-29 16:45</div></div>
     <div class="report-b">
       <div class="rrow"><span class="st g"></span><span class="nm">① 拆解</span><span class="tag g-t">通过</span><span class="rs">四份产物、占比、情绪弧、三段式</span></div>
-      <div class="rrow"><span class="st g"></span><span class="nm">② 设定书</span><span class="tag g-t">通过</span><span class="rs">十节齐、4.5 逐刀表七列齐</span></div>
+      <div class="rrow"><span class="st g"></span><span class="nm">② 设定书</span><span class="tag g-t">通过</span><span class="rs">十节齐、4.5 逐刀表九列齐</span></div>
       <div class="rrow"><span class="st g"></span><span class="nm">③ 开头</span><span class="tag g-t">通过</span><span class="rs">U01 6 秒 / 5 刀 / 3412 字符</span></div>
       <div class="rrow"><span class="st y"></span><span class="nm">④ 小分镜</span><span class="tag y-t">还没做</span><span class="rs">这一段还没有产物</span></div>
       <div class="rrow"><span class="st y"></span><span class="nm">⑤ 生产单元</span><span class="tag y-t">还没做</span><span class="rs">这一段还没有产物</span></div>
@@ -1082,7 +1083,7 @@ T = 5.0 秒（引用 00_版本设定书.md §2，未重算）
               <div><span class="ok">落盘</span><span class="path">说明\接缝核对与有效版本.md</span></div>
             </div>
             <p style="margin-top:10px"><code class="inline">检查_提示词.py</code> 六项全过：整数秒／秒数合计／每刀 ≥1.2／禁写词／下游消费齐全／景别交替。</p>
-            <p class="sm">请双击 <code class="inline">09 工具\流程.bat</code>（或 Pipeline.py 查 全部）检查一遍。</p>
+            <p class="sm">请双击 <code class="inline">{{ROOT}}/tools/流程.bat</code>（或 Pipeline.py 查 全部）检查一遍。</p>
           </div>
         </div>
       </div>
@@ -1289,7 +1290,7 @@ T = 5.0 秒（引用 00_版本设定书.md §2，未重算）
 
   <div class="pit"><div class="h">一列里住了两个量，成片掉了一半</div><div class="d">B0011 的组表只有一列叫「镜数」，填的是段数（17 组相加 36），同一个文件开头写「61 个镜头」。下游据此把 61 镜折成 36 刀，<b>成片从 62 秒掉到 31 秒</b>，四道闸没有一道报错。<br>现在分四个量：段数／镜数／刀数／每镜秒数，不许互相顶替。</div></div>
 
-  <div class="pit"><div class="h">散文里的参数，等于没写</div><div class="d">设定书第 2 节散文写「全景交代 → 近景做工」，但 4.5 逐刀表六列里没有「景别」列。下游现定，全部收到近景。<br><b>下游只抄表，不读散文。</b>任何下游要用的参数，必须在它要抄的那张表里有一列。</div></div>
+  <div class="pit"><div class="h">散文里的参数，等于没写</div><div class="d">设定书第 2 节散文写「全景交代 → 近景做工」，但当年 4.5 逐刀表里没有「景别」列。下游现定，全部收到近景。<br><b>下游只抄表，不读散文。</b>任何下游要用的参数，必须在它要抄的那张表里有一列。</div></div>
 
   <div class="pit"><div class="h">一个镜头塞八个动作，模型只做第一个</div><div class="d">28.9 秒的片子只装得下 20–25 个动作。2026-10-22 那条在<strong>设计阶段就写了 85 个</strong>，模型每个镜头只做第一个，剩下时间把做完的动作再做一遍——成片"一直在干活但不知道在干什么"。<br>一个动作 ＝ <b>一次可见的状态变化</b>；"伸手→抓→抬→放进袋"是 4 步，仍是 1 个动作。</div></div>
 
