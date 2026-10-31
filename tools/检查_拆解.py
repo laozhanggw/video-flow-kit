@@ -133,7 +133,10 @@ def main():
         for cut in ('｜', '|'):
             if cut in val:
                 val = val.split(cut)[0]
-        val = val.strip('* \t\u3000。.')
+        # 2026-10-31 修：原来只剥 * 和空白，没剥反引号。
+        # 写「观众反应：`必须马上处理`」这种带 Markdown 反引号的合法值，会被判成「填错了」。
+        # 人写对了、格式没错，是检查器不认——这类假红灯最伤，见 B0018 问题清单第 10 条。
+        val = val.strip('* \t\u3000。.`\'"「」『』')
         if val:
             cands.append(val)
     multi = [v for v in cands if sum(r in v for r in REACTIONS) >= 2]
@@ -195,11 +198,20 @@ def main():
         if ln.lstrip().startswith('|'):
             seg = ln
         else:
+            # 2026-10-31 修：原来碰到第一个空行就断。
+            # 但「**人物（四件套）**」这种加粗小标题后面一定跟一个空行，正文在空行下面，
+            # 于是块里只剩标题本身，四项全判「缺」——内容明明写了，检查器说没写。
             blk = [ln]
+            started = False
             for nx in lines[n + 1:]:
-                t = nx.lstrip()
-                if not t or t.startswith('|') or t.startswith('#'):
+                t = nx.strip()
+                if not started and not t:
+                    continue                      # 标题与正文之间的空行，跳过
+                if not t or t.startswith('#') or t.startswith('|'):
                     break
+                if re.match(r'^\*\*[^*]+\*\*\s*$', t):
+                    break                         # 下一个加粗小标题，本块结束
+                started = True
                 blk.append(nx)
             seg = '\n'.join(blk)
         break
