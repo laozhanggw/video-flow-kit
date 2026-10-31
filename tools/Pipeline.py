@@ -18,6 +18,7 @@
     python 流程.py 说明
     python 流程.py 查 设定书 --版本 "…\\V01_la_casa_del_sueno"
     python 流程.py 查 成片   --视频 "…\\成品.mp4" --起 23.670
+    python Pipeline.py 查 单元   --版本 "…\\V01"      （含动作来源对账，自动找 分镜\\后段小分镜_有效.md）
     python Pipeline.py 查 全部   --版本 "…\\V01" --视频 "…\\成品.mp4"
     python 流程.py 看 四层   --头 开头.csv --段 后段.csv --单元 "U01=N01;U02=N02-N07"
     python 流程.py 抽 make   --files "00_版本设定书.md" --k 6 --out 抽问单.md
@@ -39,6 +40,7 @@ ENG = {
     '开头': '检查_开头.py',
     '交付物': '检查_交付物.py',
     '动作预算': '检查_动作预算.py',
+    '动作来源': '检查_动作来源.py',
     '三段': '检查_三段.py',
     '结尾': '检查_结尾.py',
     '环节': '看板_环节.py',
@@ -68,7 +70,7 @@ MAP = """
   ④ 小分镜  查 分镜                        动作数密度、刀数、位移刀秒数
             看 环节                        工序缺没缺
 
-  ⑤ 单元    查 单元                        盒子秒数、覆盖表、跨段混装
+  ⑤ 单元    查 单元                        盒子秒数、覆盖表、跨段混装、动作有没有出处
             看 四层                        ★ 分镜 ↔ 单元 有没有漏、重、超 15 秒
 
   ⑥ 成片    查 成片                        结尾亮度比、末镜时长、验证段镜数
@@ -217,6 +219,7 @@ HUMAN = {
     '分镜-交付物': ('分镜', '字段、秒数或动作数有问题', '让写分镜的对话框改'),
     '单元-交付物': ('单元', '盒子的秒数或取用率有问题', '让划单元的对话框改'),
     '动作预算':   ('动作密度', '动作排得太密', '让写分镜的对话框，把每刀的动作减到 1 个'),
+    '动作来源':   ('动作来源', '单元卡里有分镜里没写过的动作', '让写单元的对话框，把这些动作删掉；真要加就退回分镜改'),
     '成片-结尾':  ('结尾', '结尾不达标', '重新生成结尾那一盒'),
 }
 
@@ -268,6 +271,16 @@ def do_check(a):
             for t in targets:
                 worst = max(worst, run('动作预算', [t] + base))
             add('动作预算', worst)
+
+    # ⑤ 动作来源：单元卡里每一刀的动作，都必须在分镜里逐字找得到出处
+    #    2026-10-27 那 5.9 秒白走，就是「模板写了不许自加动作」拦不住的那一类。
+    #    单元目录还没建（比如刚做完分镜）就自然跳过，不算不过。
+    if a.阶段 in ('单元', '全部') and v:
+        units = os.path.join(v, '单元')
+        # 菜单那条路没有 --分镜，所以用 getattr 兜住
+        board = getattr(a, '分镜', None) or os.path.join(v, '分镜', '后段小分镜_有效.md')
+        if os.path.isdir(units) and os.path.exists(board):
+            add('动作来源', run('动作来源', [units, '--board', board]))
 
     # ⑥ 成片
     if a.阶段 in ('成片', '全部') and vid:
@@ -418,6 +431,8 @@ def main():
         ap.add_argument('--对标库', '--repo', dest='对标库')
         ap.add_argument('--视频', '--video', dest='视频')
         ap.add_argument('--基准', '--baseline', dest='基准')
+        ap.add_argument('--分镜', '--board', dest='分镜',
+                        help='动作来源要对账的那份小分镜；不给就按 <版本目录>\\分镜\\后段小分镜_有效.md')
         ap.add_argument('--总长', '--total', dest='总长', type=float)
         ap.add_argument('--起', '--end-start', dest='起', type=float)
         ap.add_argument('--对标', '--ref', dest='对标')
