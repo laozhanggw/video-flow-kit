@@ -1,6 +1,7 @@
 【外部依赖｜这些数不许在本文件里重写】2026-10-29 挂
 · 素材秒两档与动作单位表 → skills/adaptive-video-production/references/material-seconds.md
 · 景别交替、切点写法 → skills/adaptive-video-production/references/internal-cut.md
+· 规则三件套（都在本规范根目录）：冲突谁赢→00_规则优先级表.md；一个数一个家→00_字段契约.md；什么该问人→00_决策点清单.md
 本文件独有的定义（唯一来源，skill 只许引用）：每刀职责四类（可见进展／变漂亮／验证／情绪剧情）、
 禁准备动作、移动必须带着东西、到位即松手、每一刀都要有下游。
 

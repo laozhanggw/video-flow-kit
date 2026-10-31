@@ -3,6 +3,9 @@
   "required_files": [
     "00_从这里开始.md",
     "00_先读我.md",
+    "00_决策点清单.md",
+    "00_字段契约.md",
+    "00_规则优先级表.md",
     "01_第0步_开项目.md",
     "01_给AI的接手指南.md",
     "02_操作流程_图解.html",
@@ -98,19 +101,31 @@
     "tools/体检.py",
     "tools/建帧索引.py",
     "tools/抽查.py",
+    "tools/检查_三段.py",
+    "tools/检查_交付物.py",
+    "tools/检查_动作来源.py",
+    "tools/检查_动作预算.py",
     "tools/检查_口径一致.py",
+    "tools/检查_导图同步.py",
+    "tools/检查_开头.py",
+    "tools/检查_拆解.py",
     "tools/检查_提示词.py",
+    "tools/检查_结尾.py",
+    "tools/检查_自洽.py",
     "tools/生成流程导图.py",
+    "tools/看板_四层.py",
+    "tools/看板_对比.py",
+    "tools/看板_环节.py",
     "tools/自检引用.py",
     "tools/设置本机路径.bat",
     "tools/设置本机路径.py",
-    "发布状态_部分更新.txt",
     "对标库/说明.md",
     "指令/1_拆解.txt",
     "指令/2_复刻.txt",
     "指令/3_开头.txt",
     "指令/4_小分镜.txt",
     "指令/5_生产单元.txt",
+    "模板/00_决策单.md",
     "模板/00_怎么用.md",
     "模板/00_版本设定书_空表.md",
     "模板/00_项目台账_模板.md",
@@ -141,6 +156,21 @@
     ],
     "tools/检查_交付物.py": [
       "tools/检查_动作预算.py"
+    ],
+    "tools/检查_导图同步.py": [
+      "tools/pipeline_runtime.py"
+    ],
+    "tools/检查_开头.py": [
+      "tools/pipeline_runtime.py"
+    ],
+    "tools/看板_四层.py": [
+      "tools/pipeline_runtime.py"
+    ],
+    "tools/看板_对比.py": [
+      "tools/pipeline_runtime.py"
+    ],
+    "tools/看板_环节.py": [
+      "tools/pipeline_runtime.py"
     ],
     "tools/自检引用.py": [
       "tools/pipeline_runtime.py"
@@ -189,53 +219,11 @@
     "53_测试单元提示词_景别与提速_20261029.md",
     "54_测试结果判定_20261029.md",
     "56_方案裁定_20261029.md",
-    "59_测试结果判定_11秒7刀_20261029.md"
+    "59_测试结果判定_11秒7刀_20261029.md",
+    "66_倒推核对_第一版_20261030.md",
+    "67_一个结构能重复用几次_阿初原文_20261030.md",
+    "68_同质化_日报素材_20261030.md"
   ],
-  "release_status": "partial",
-  "deferred_files": [
-    {
-      "target": "tools/检查_拆解.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_开头.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_交付物.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_动作预算.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_三段.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_结尾.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_动作来源.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/看板_环节.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/看板_四层.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/看板_对比.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    },
-    {
-      "target": "tools/检查_导图同步.py",
-      "reason": "已有文件读取拒绝记录，本轮部分发布不尝试读取"
-    }
-  ]
+  "release_status": "complete_build",
+  "deferred_files": []
 }

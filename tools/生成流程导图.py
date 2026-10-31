@@ -40,6 +40,18 @@ SKILL_FILES = [
     ("adaptive-video-production-material-seconds", "adaptive-video-production/references/material-seconds.md", "④小分镜·素材秒怎么算"),
 ]
 
+# 规则三件套。五份指令顶部都指向它们，发给别人时必须一起带上，
+# 否则对方只能看到「去读 00_规则优先级表.md」，却在包里找不到这个文件。
+RULE_FILES = [
+    ("R1", "00_规则优先级表.md", "规则一·冲突时谁说了算"),
+    ("R2", "00_字段契约.md", "规则二·一个数只有一个家"),
+    ("R3", "00_决策点清单.md", "规则三·什么该问人"),
+]
+# 指令里点了名的数据文件，跟着一起嵌进来，免得只拿到 HTML 的人照着文件名干瞪眼。
+VOCAB_FILES = [
+    ("V1", "19_工序词表.md", "工序名与工具名的唯一来源"),
+]
+
 # ────────────────────────────────────────────────────────────
 # 节点内容
 #   title    节点名
@@ -347,7 +359,7 @@ NODES = [
                         "summary": "T 不是 13 秒，也不是 2.3 秒。它是原片里「人第一次接触要处理的东西」的那一刻。",
                         "points": [
                             "取到那段动作结束，不是取一个整数。",
-                            "必须做比例校验：T ÷ 全片总时长，应落在 12%–18%。",
+                            "T 直接抄 ① 交的开头段秒数，不重算、不判比例（2026-10-31 起取消「12%–18%」这条校验）。",
                             "实测参考：修坑 01 = 13 秒，02 = 16 秒，06 = 22 秒，收衣服那条 = 2.6 秒。",
                             "T 一旦定下来写进设定书，下游三段一律引用，不许重算。",
                         ],
@@ -405,7 +417,7 @@ NODES = [
                             "head": ["节", "内容"],
                             "rows": [
                                 ["第 0 节", "判定摘要：八行"],
-                                ["第 1 节", "本批说明：T 值、T 的来源、12%–18% 校验"],
+                                ["第 1 节", "本批说明：T 值、T 的来源（① 交的开头段秒数与占全片百分比）"],
                                 ["第 2 节", "拆解摘要：七段环节 / 表面十项 / 首帧五要素 / 情绪弧；**开头要有来源戳**（抄自哪份、改于几时），原拆解一改就要重抄；**另加逐段速查表**（段号｜起止秒｜状态变化），否则 4.5 逐刀表没有依据"],
                                 ["第 3 节", "骨架主表（全批一张）"],
                                 ["第 4 节", "变/不变判定表（锁死 13 项 × 各版）"],
@@ -529,7 +541,7 @@ NODES = [
                 "**第一块 · 骨架（一句话 ≤50 字）**：阿初概括《目中无人2》1 分 50 秒只用一句「主角被坏人追逐抓住-被欺负后无力的反击-在要被伤害前被好人阻止-好人打跑了坏人-好人无视了主角」。**人数、道具、场地、「甚至分镜的数量」全是细节，骨架里一个都不出现。**",
                 "**第二块 · 大纲（大白话，按刀往下写，每刀 2–3 行）**：不许表格；情绪写在动作里（「她没有喊，只是喘」＝情绪，「她很害怕」＝废话）；素材秒写在标题行；一刀必须是一个人能连续做完的片段。V01 写全，V02 起只写不同的刀。",
                 "**第三块 · 变更短表（≤20 行）**：占哪个子维度／骨架动没动／表面换了什么／加一个／删一个。**加两个以上不是微调，是重写。**",
-                "**其余 12 节降级成检查项**：锁死项、情绪强度、C1/C2/C3/C5 不撞、骨架分句数、总时长±5秒、T 占比 12–18%、表面八项每版都换、各版不同子维度。**AI 自查，只在对话里报「8 条全过」，不写成文档给人看。**",
+                "**其余 12 节降级成检查项**：锁死项、情绪强度、C1/C2/C3/C5 不撞、骨架分句数、总时长±5秒、T 与 ① 一致、表面八项每版都换、各版不同子维度。**AI 自查，只在对话里报「8 条全过」，不写成文档给人看。**",
                 "**版本设定书仍要写，但是派生**：定稿后从大纲机械搬运，不新增任何设计。派生出大纲里没有的动作或场地＝错，打回。",
             ],
             "note": "完整对照与阿初原话见 `37_复刻环节对照阿初_20261027.md`；模板见 `12_中间过程稿_模板与样例_20261021.md` 第一部分（三块），旧十七项在附录 A。",
@@ -702,7 +714,7 @@ NODES = [
                         ["画面内容 / 外部条件 / 暴露物 / 入出镜 / 镜头 / 耗时 / 动作 / 力度 / 这段要表达的意思 / 声音 / 原位置留下的问题", "维度 / 原片 / 新片 / 变·不变 / 结构是否一致 / 情绪是否一致 / 为什么"],
                     ],
                 },
-                "note": "另外必须正面回答四个问题：① 第 0 秒外部条件是否正打在暴露物上 ② 原位置的痛点是否还在 ③ 三项表面是否都避开了 ④ T ÷ 总时长是否落在 12%–18%。",
+                "note": "另外必须正面回答四个问题：① 第 0 秒外部条件是否正打在暴露物上 ② 原位置的痛点是否还在 ③ 三项表面是否都避开了 ④ T 是否等于设定书第 2 节写的那个数。",
             },
             {
                 "id": "d2-11",
@@ -1380,7 +1392,7 @@ NODES = [
                     "rows": [
                         ["① 拆解", "四份产物齐；两份逐段表都有「状态变化/动作数/位移」三列；秒数连续无跳秒；段号连续；first_frame 是 0.000 秒那帧", "拆得对不对：这一刀的功能说得准不准；「未核」的地方是不是真的没核"],
                         ["② 设定书", "十节齐全（含 4.5）；4.5 表九列；动作数只有 0/1；动作合计 ≈ 原片 ±20%；**同一镜号的「覆盖原片时段」首尾相接、不留洞、不重叠**；**素材秒 ≤ 覆盖时长×1.3**；总时长 ≈ 原片 ±15%", "表面八项换得够不够（会不会被认成同一条）；七问答的是不是真话；**原片那几件事有没有在「合成一句话」的时候悄悄没了**"],
-                        ["③ 开头", "逐段表有「那一个动作」和「动作数」；对照表 12 行；T ÷ 全片在 12–18%；首帧五要素；**U01 刀数 ＝ 生成秒 ÷ 2、时间轴铺满、相邻刀景别不同**", "环节选对没有（原片是「问题出现」，你别做成「连续修」）；情绪递进是不是硬编的；U01 每一刀手上是不是一直有事做"],
+                        ["③ 开头", "逐段表有「那一个动作」和「动作数」；对照表 12 行；T 与 ① 一致；首帧五要素；**U01 刀数 ＝ 生成秒 ÷ 2、时间轴铺满、相邻刀景别不同**", "环节选对没有（原片是「问题出现」，你别做成「连续修」）；情绪递进是不是硬编的；U01 每一刀手上是不是一直有事做"],
                         ["④ 小分镜", "N 编号连续；秒数连续；每刀有动作数；**每刀同时有素材秒和成片秒**；无占位符；动作预算闸门", "每一刀观众能不能看懂因果：手里拿的什么、从哪来、做完哪里变了"],
                         ["⑤ 生产单元", "单元表三列；单元数落在硬表；每盒 13–15 秒装 6–7 刀；位移刀不在最后一刀；盒级取用率 ≥60%；Prompt ≤4096；参考图 ≤4", "单元合并得合不合理；每刀是不是真能演满 2 秒；参考图之间会不会打架"],
                         ["跨环节", "总时长：设定书 = 分镜末段；动作数：4.5 合计 = 分镜声明；T 值与分镜切点对得上", "同一个数字在三份文件里指的是不是同一件事"],
@@ -1423,7 +1435,7 @@ NODES = [
                     "「未核」标注少 → 说明拆解可能没核完，不是错，但你要知道有多少没核。",
                     "参考图 >4 张 → 平台只让传 4 张，多的要合并。",
                     "位移刀排最后 → 素材保留率从 90% 掉到 65%，不是必错，但要你拍这个板。",
-                    "T 比例不在 12–18% → 开头太长或太短，要看是不是风格选择。",
+                    "T 与 ① 交的数不一致 → 设定书 bug，回 ② 改，不许下游自己挑一个。",
                 ],
             },
             {
@@ -1509,6 +1521,30 @@ def load_skills():
     return data
 
 
+def load_rules():
+    """三份规则文件全文。缺一份就停止生成——指令里指着它们，包里没有等于断链。"""
+    data = {}
+    for key, fn, label in RULE_FILES:
+        p = os.path.join(BASE, fn)
+        if not os.path.exists(p):
+            raise FileNotFoundError("缺规则文件：" + p)
+        data[key] = {"label": label, "path": fn,
+                     "text": io.open(p, encoding="utf-8").read()}
+    return data
+
+
+def load_vocab_files():
+    """指令里点名的数据文件（工序／工具词表）。缺了就停，理由同上。"""
+    data = {}
+    for key, fn, label in VOCAB_FILES:
+        p = os.path.join(BASE, fn)
+        if not os.path.exists(p):
+            raise FileNotFoundError("缺词表文件：" + p)
+        data[key] = {"label": label, "path": fn,
+                     "text": io.open(p, encoding="utf-8").read()}
+    return data
+
+
 def distribution_nodes(value):
     """节点文案使用当前配置根；不把配置前的作者地址带回网页。"""
     if isinstance(value, list):
@@ -1546,8 +1582,12 @@ def load_maintenance():
 def build():
     instr = load_instructions()
     skills = load_skills()
+    rules = load_rules()
+    vocab = load_vocab_files()
     maintenance = load_maintenance()
-    payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills, "maintenance": maintenance}, ensure_ascii=False).replace("</", "<\\/")
+    payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills,
+                          "rules": rules, "vocab": vocab, "maintenance": maintenance},
+                         ensure_ascii=False).replace("</", "<\\/")
     html = HTML_TEMPLATE.replace("/*__DATA__*/", "const DATA = " + payload + ";")
     # 无脚本阅读器和其他AI也能直接读取规则，不必执行页面JavaScript。
     fallback = ('<noscript><section style="padding:24px;background:#f8fafc;color:#172033">'
@@ -1966,6 +2006,12 @@ function renderView(){
       h += '<button class="btn pri" onclick="copyInstr(\''+ik+'\')">'+
            esc(INSTR_LABEL[ik])+'（'+DATA.instr[ik].length+' 字）</button>';
     }
+    if(DATA.rules && Object.keys(DATA.rules).length){
+      h += '<button class="btn" onclick="copyRules()">复制规则三件套（每段都要）</button>';
+    }
+    if(DATA.vocab && Object.keys(DATA.vocab).length){
+      h += '<button class="btn" onclick="copyVocab()">复制工序与工具词表</button>';
+    }
     h += '</div>';
   }
 
@@ -2041,6 +2087,26 @@ function copySkill(k){
   if(!sk){ toast("没有这份 skill"); return; }
   copyText(sk.text);
 }
+function copyRules(){
+  const R = DATA.rules||{};
+  const ks = Object.keys(R).sort();
+  if(!ks.length){ toast("没有规则文件"); return; }
+  let out = "【规则三件套｜①②③④⑤ 全部适用】\n冲突时查规则一；数字怎么派生查规则二；什么该问人查规则三。\n";
+  ks.forEach(k=>{
+    out += "\n\n===== "+R[k].path+"　"+R[k].label+" =====\n\n"+R[k].text;
+  });
+  copyText(out);
+}
+function copyVocab(){
+  const V = DATA.vocab||{};
+  const ks = Object.keys(V).sort();
+  if(!ks.length){ toast("没有词表文件"); return; }
+  let out = "【工序与工具词表｜命名以此为准】\n工序名、工具名只许从这张表里取，不许自己起名字。\n";
+  ks.forEach(k=>{
+    out += "\n\n===== "+V[k].path+"　"+V[k].label+" =====\n\n"+V[k].text;
+  });
+  copyText(out);
+}
 function fallbackCopy(t){
   const ta=document.createElement("textarea");
   ta.value=t; ta.style.position="fixed"; ta.style.left="-9999px";
@@ -2079,6 +2145,26 @@ document.getElementById("btnExport").onclick = ()=>{
     if(nd.children) nd.children.forEach(c=>walk(c, depth+1));
   }
   DATA.nodes.forEach(nd=>walk(nd,1));
+
+  const RU = DATA.rules || {};
+  if(Object.keys(RU).length){
+    out.push("\n---\n\n# 附零：规则三件套（①②③④⑤ 通用，先读这个）\n");
+    out.push("\n> 五份指令顶部都指向这三份文件。发给别人时，这三份必须跟着指令一起给。\n");
+    Object.keys(RU).sort().forEach(k=>{
+      out.push("\n## "+RU[k].label+"　`"+RU[k].path+"`\n");
+      out.push("```markdown\n"+RU[k].text+"\n```\n");
+    });
+  }
+
+  const VO = DATA.vocab || {};
+  if(Object.keys(VO).length){
+    out.push("\n---\n\n# 附零之二：工序与工具词表（命名唯一来源）\n");
+    out.push("\n> 指令里凡说「以 19_工序词表.md 为准」，指的就是下面这份。工序名、工具名都从这张表里取。\n");
+    Object.keys(VO).sort().forEach(k=>{
+      out.push("\n## "+VO[k].label+"　`"+VO[k].path+"`\n");
+      out.push("```markdown\n"+VO[k].text+"\n```\n");
+    });
+  }
 
   out.push("\n---\n\n# 附一：五份完整指令\n");
   Object.keys(DATA.instr).sort().forEach(k=>{
