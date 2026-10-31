@@ -4,6 +4,7 @@
     "00_从这里开始.md",
     "00_先读我.md",
     "00_决策点清单.md",
+    "00_卡住了怎么办.md",
     "00_字段契约.md",
     "00_规则优先级表.md",
     "01_第0步_开项目.md",
@@ -99,6 +100,7 @@
     "tools/Pipeline.py",
     "tools/pipeline_runtime.py",
     "tools/体检.py",
+    "tools/卡点统计.py",
     "tools/建帧索引.py",
     "tools/抽查.py",
     "tools/检查_三段.py",
@@ -135,6 +137,7 @@
     "模板/_V文件夹骨架/生成/_放什么.md",
     "模板/_V文件夹骨架/说明/_放什么.md",
     "模板/_V文件夹骨架/输入/_放什么.md",
+    "模板/_卡点日志.md",
     "流程导图.html"
   ],
   "script_dependencies": {

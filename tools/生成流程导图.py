@@ -47,9 +47,10 @@ RULE_FILES = [
     ("R2", "00_字段契约.md", "规则二·一个数只有一个家"),
     ("R3", "00_决策点清单.md", "规则三·什么该问人"),
 ]
-# 指令里点了名的数据文件，跟着一起嵌进来，免得只拿到 HTML 的人照着文件名干瞪眼。
-VOCAB_FILES = [
+# 指令里点了名的参考文件，跟着一起嵌进来，免得只拿到 HTML 的人照着文件名干瞪眼。
+REF_FILES = [
     ("V1", "19_工序词表.md", "工序名与工具名的唯一来源"),
+    ("V2", "00_卡住了怎么办.md", "卡住时的七种处置（新手第一页）"),
 ]
 
 # ────────────────────────────────────────────────────────────
@@ -1533,10 +1534,10 @@ def load_rules():
     return data
 
 
-def load_vocab_files():
-    """指令里点名的数据文件（工序／工具词表）。缺了就停，理由同上。"""
+def load_ref_files():
+    """指令里点名的参考文件（词表、卡住怎么办）。缺了就停，理由同上。"""
     data = {}
-    for key, fn, label in VOCAB_FILES:
+    for key, fn, label in REF_FILES:
         p = os.path.join(BASE, fn)
         if not os.path.exists(p):
             raise FileNotFoundError("缺词表文件：" + p)
@@ -1583,10 +1584,10 @@ def build():
     instr = load_instructions()
     skills = load_skills()
     rules = load_rules()
-    vocab = load_vocab_files()
+    refs = load_ref_files()
     maintenance = load_maintenance()
     payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills,
-                          "rules": rules, "vocab": vocab, "maintenance": maintenance},
+                          "rules": rules, "refs": refs, "maintenance": maintenance},
                          ensure_ascii=False).replace("</", "<\\/")
     html = HTML_TEMPLATE.replace("/*__DATA__*/", "const DATA = " + payload + ";")
     # 无脚本阅读器和其他AI也能直接读取规则，不必执行页面JavaScript。
@@ -2009,8 +2010,8 @@ function renderView(){
     if(DATA.rules && Object.keys(DATA.rules).length){
       h += '<button class="btn" onclick="copyRules()">复制规则三件套（每段都要）</button>';
     }
-    if(DATA.vocab && Object.keys(DATA.vocab).length){
-      h += '<button class="btn" onclick="copyVocab()">复制工序与工具词表</button>';
+    if(DATA.refs && Object.keys(DATA.refs).length){
+      h += '<button class="btn" onclick="copyRefs()">复制参考表（词表＋卡住怎么办）</button>';
     }
     h += '</div>';
   }
@@ -2097,11 +2098,11 @@ function copyRules(){
   });
   copyText(out);
 }
-function copyVocab(){
-  const V = DATA.vocab||{};
+function copyRefs(){
+  const V = DATA.refs||{};
   const ks = Object.keys(V).sort();
-  if(!ks.length){ toast("没有词表文件"); return; }
-  let out = "【工序与工具词表｜命名以此为准】\n工序名、工具名只许从这张表里取，不许自己起名字。\n";
+  if(!ks.length){ toast("没有参考文件"); return; }
+  let out = "【参考表｜命名与卡住时的处置，都以此为准】\n工序名、工具名只许从词表里取；卡住了照「卡住了怎么办」做。\n";
   ks.forEach(k=>{
     out += "\n\n===== "+V[k].path+"　"+V[k].label+" =====\n\n"+V[k].text;
   });
@@ -2156,10 +2157,10 @@ document.getElementById("btnExport").onclick = ()=>{
     });
   }
 
-  const VO = DATA.vocab || {};
+  const VO = DATA.refs || {};
   if(Object.keys(VO).length){
-    out.push("\n---\n\n# 附零之二：工序与工具词表（命名唯一来源）\n");
-    out.push("\n> 指令里凡说「以 19_工序词表.md 为准」，指的就是下面这份。工序名、工具名都从这张表里取。\n");
+    out.push("\n---\n\n# 附零之二：随段必带的参考表\n");
+    out.push("\n> 指令里点名的那两份：工序与工具词表、卡住了怎么办。发给别人时必须跟着一起给。\n");
     Object.keys(VO).sort().forEach(k=>{
       out.push("\n## "+VO[k].label+"　`"+VO[k].path+"`\n");
       out.push("```markdown\n"+VO[k].text+"\n```\n");
