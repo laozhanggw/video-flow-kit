@@ -52,6 +52,15 @@ REF_FILES = [
     ("V1", "19_工序词表.md", "工序名与工具名的唯一来源"),
     ("V2", "00_卡住了怎么办.md", "卡住时的七种处置（新手第一页）"),
 ]
+# VisualGPT 适配包（2026-11-01）：图片提示词＋视频提示词的写卡格式。
+# 网页上单独一个按钮，点一次拿到「通用指令 ＋ 格式全文（含示例）」，
+# 直接粘给写卡的 AI；发给别人时也不依赖本机路径。
+# 起因：B0018 V02 三条单元卡把「（已有）」写进参考图路径，三条视频被静默跳过。
+VG_FILES = [
+    (os.path.join(TPL, "5B_写卡格式_通用.txt"), "写卡格式·通用指令"),
+    (os.path.join(SKILL_DIR, "adaptive-video-production", "references", "生产单元_写卡格式_v1.md"),
+     "写卡格式·全文与示例"),
+]
 
 # ────────────────────────────────────────────────────────────
 # 节点内容
@@ -1546,6 +1555,31 @@ def load_ref_files():
     return data
 
 
+def load_vg():
+    """VisualGPT 适配包：通用指令 ＋ 格式全文（含示例）。
+
+    一次复制、一次粘贴就够用，所以这里先拼成一段 text；parts 只给导出 Markdown 用。
+    缺文件就停——网页上点了按钮却复制到半份东西，比没有按钮更坏。
+    """
+    parts, chunks = [], []
+    for path, label in VG_FILES:
+        if not os.path.exists(path):
+            raise FileNotFoundError("缺写卡格式文件：" + path)
+        rel = os.path.relpath(path, BASE).replace("\\", "/")
+        text = io.open(path, encoding="utf-8").read()
+        parts.append({"label": label, "path": rel, "text": text})
+        chunks.append("\n\n===== %s　%s =====\n\n%s" % (label, rel, text))
+    head = ("【VisualGPT 适配｜生产单元写卡格式 v1】\n"
+            "这是给写卡 AI 的完整要求，收到后按下面三步做，不要只回复「收到」：\n"
+            "1. 第一份「写卡格式·通用指令」就是你要执行的指令，先判断走模式A（从零写卡）"
+            "还是模式B（只改格式，正文一字不动）；\n"
+            "2. 第二份「写卡格式·全文与示例」是细则，含一票否决清单和两个完整示例，动笔前读完；\n"
+            "3. 写完按指令第五节自检 10 项，再跑 tools\\Pipeline.py 查 单元 --版本 <本版本目录>，"
+            "看到「结论：通过」才算交付（卡格式已并入总闸门，不要直接调子脚本）。\n"
+            "（人看这一行：点按钮复制全文，把项目文件夹路径填进指令第一行，直接发给 AI 即可。）\n")
+    return {"text": head + "".join(chunks), "parts": parts}
+
+
 def distribution_nodes(value):
     """节点文案使用当前配置根；不把配置前的作者地址带回网页。"""
     if isinstance(value, list):
@@ -1585,9 +1619,10 @@ def build():
     skills = load_skills()
     rules = load_rules()
     refs = load_ref_files()
+    vg = load_vg()
     maintenance = load_maintenance()
     payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills,
-                          "rules": rules, "refs": refs, "maintenance": maintenance},
+                          "rules": rules, "refs": refs, "vg": vg, "maintenance": maintenance},
                          ensure_ascii=False).replace("</", "<\\/")
     html = HTML_TEMPLATE.replace("/*__DATA__*/", "const DATA = " + payload + ";")
     # 无脚本阅读器和其他AI也能直接读取规则，不必执行页面JavaScript。
@@ -1681,6 +1716,8 @@ header .sub{font-size:12px;color:var(--tx3);margin-left:2px}
 .btn:hover{border-color:var(--ac-line);color:var(--ac);background:var(--ac-bg)}
 .btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
 .btn.pri:hover{background:#1d4ed8;color:#fff}
+.btn.vg{border-color:#7c3aed;color:#6d28d9;background:#f5f3ff;font-weight:600}
+.btn.vg:hover{border-color:#6d28d9;color:#5b21b6;background:#ede9fe}
 /* ── 阶段条 ── */
 .flow{
   flex:0 0 auto;background:var(--panel);border-bottom:1px solid var(--line);
@@ -1776,11 +1813,12 @@ tr:nth-child(even) td{background:#fafbfc}
 .pit ul li{margin-bottom:4px}
 /* 复制区 */
 .copybar{
-  display:flex;align-items:center;gap:9px;margin:22px 0 10px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:22px 0 10px;
   padding:11px 14px;background:var(--ac-bg);border:1px solid var(--ac-line);
   border-radius:var(--r);max-width:900px;
 }
-.copybar .lbl{font-size:12.5px;color:var(--ac);font-weight:600;flex:1}
+.copybar .lbl{font-size:12.5px;color:var(--ac);font-weight:600;flex:0 0 auto}
+.copybar .btn{white-space:nowrap}
 .code{
   background:#0f172a;color:#dbe3f0;border-radius:var(--r);padding:14px 16px;
   font-family:ui-monospace,"Cascadia Code",Consolas,"Courier New",monospace;
@@ -2013,6 +2051,10 @@ function renderView(){
     if(DATA.refs && Object.keys(DATA.refs).length){
       h += '<button class="btn" onclick="copyRefs()">复制参考表（词表＋卡住怎么办）</button>';
     }
+    if(ik === '5' && DATA.vg && DATA.vg.text){
+      h += '<button class="btn vg" onclick="copyVG()" title="图片提示词＋视频提示词的骨架、头部字段、路径写法，一次粘给写卡 AI">'+
+           '复制 VisualGPT 适配写卡指令（'+DATA.vg.text.length+' 字）</button>';
+    }
     h += '</div>';
   }
 
@@ -2087,6 +2129,11 @@ function copySkill(k){
   const sk = (DATA.skills||{})[k];
   if(!sk){ toast("没有这份 skill"); return; }
   copyText(sk.text);
+}
+function copyVG(){
+  const V = DATA.vg;
+  if(!V || !V.text){ toast("没有写卡格式包"); return; }
+  copyText(V.text);
 }
 function copyRules(){
   const R = DATA.rules||{};
@@ -2164,6 +2211,16 @@ document.getElementById("btnExport").onclick = ()=>{
     Object.keys(VO).sort().forEach(k=>{
       out.push("\n## "+VO[k].label+"　`"+VO[k].path+"`\n");
       out.push("```markdown\n"+VO[k].text+"\n```\n");
+    });
+  }
+
+  const VG = DATA.vg;
+  if(VG && VG.parts && VG.parts.length){
+    out.push("\n---\n\n# 附四：VisualGPT 适配写卡格式（图片提示词＋视频提示词）\n");
+    out.push("\n> 让 AI 按这一份写 共用卡制卡词.md 和 单元\\U0N.md。写完用 tools\\检查_卡格式.py 自检。\n");
+    VG.parts.forEach(p=>{
+      out.push("\n## "+p.label+"　`"+p.path+"`\n");
+      out.push("```markdown\n"+p.text+"\n```\n");
     });
   }
 

@@ -15,7 +15,8 @@
     1. 网页版本条里内嵌的「指令字数」五个数
        ↔ 本机 指令\\*.txt 的实际字符数（len，和生成器同一算法）
        任何一个对不上 → 退出码 1
-    2. 指令和 skill 全文快照与磁盘逐字比对（等长修改也拦截）
+    2. 指令、skill、参考表（词表／卡住了怎么办）、写卡格式（5B／格式全文）
+       的全文快照与磁盘逐字比对（等长修改也拦截）
     3. 源文件最新修改时间按秒比较 > 网页生成时间 → 退出码 1
     4. 网页生成时间或全文快照读不到 → 退出码 2（文件坏了，不是通过）
 
@@ -47,6 +48,17 @@ INSTR_FILES = {
     "4": "4_小分镜.txt",
     "5": "5_生产单元.txt",
 }
+
+# 网页「复制参考表」按钮装的快照，顺序与 生成流程导图.py 的 REF_FILES 一致
+REF_FILES = [
+    ("V1", "19_工序词表.md"),
+    ("V2", "00_卡住了怎么办.md"),
+]
+
+# 网页「写卡格式」按钮装的快照（生成器 VG_FILES）。
+# 第一份在 指令/ 下，第二份在 skills/ 下——路径基准不同，所以分开存。
+VG_TXT = "5B_写卡格式_通用.txt"
+VG_MD = "skills/adaptive-video-production/references/生产单元_写卡格式_v1.md"
 
 # 网页「八、skill 全文」那一节内嵌的快照，顺序必须和 生成流程导图.py 的 SKILL_FILES 一致
 SKILL_FILES = [
@@ -182,6 +194,49 @@ def main():
             print(f"{key:<5}{real:>12,}{shown:>12,}{diff:>+8}   {'✓' if ok else '✗ 网页是旧的'}")
             if not ok:
                 bad.append(f"{key}：skills/{rel} 本机 {real:,} 字，网页 {shown:,} 字，差 {diff:+,}")
+
+    # ── 参考表（refs）与写卡格式（vg）：网页上那两个复制按钮装的也是全文快照。
+    #    2026-11-01 之前这里没查，词表／卡住了怎么办／5B 改了不会有人发现。
+    print()
+    print(f'{"参考":<5}{"本机文件":>12}{"网页内嵌":>12}   状态')
+    print("-" * 48)
+    refs_snap = snapshot.get("refs") if isinstance(snapshot.get("refs"), dict) else {}
+    for key, fn in REF_FILES:
+        fp = os.path.join(base, fn)
+        if not os.path.exists(fp):
+            print(f"{key:<5}{'缺文件':>12}{'-':>12}   ✗")
+            bad.append(f"{key}：{fn} 不存在")
+            continue
+        text = io.open(fp, encoding="utf-8").read()
+        real = len(text)
+        stored = refs_snap.get(key)
+        ok = isinstance(stored, dict) and stored.get("text") == text
+        if not ok:
+            bad.append(f"{key}：{fn} 全文快照不一致或缺失（含等长改动）")
+        mt = datetime.datetime.fromtimestamp(os.path.getmtime(fp))
+        if newest is None or mt > newest:
+            newest = mt
+        print(f"{key:<5}{real:>12,}{'一致' if ok else '旧了':>12}   {'✓' if ok else '✗ 网页是旧的'}")
+
+    vg = snapshot.get("vg") if isinstance(snapshot.get("vg"), dict) else {}
+    parts = {os.path.basename(p.get("path", "")): p.get("text")
+             for p in (vg.get("parts") or []) if isinstance(p, dict)}
+    for rel, root in ((VG_TXT, tpl), (VG_MD, base)):
+        fp = os.path.join(root, *rel.split("/"))
+        name = os.path.basename(rel)
+        if not os.path.exists(fp):
+            print(f"{'vg':<5}{'缺文件':>12}{'-':>12}   ✗")
+            bad.append(f"{rel} 不存在")
+            continue
+        text = io.open(fp, encoding="utf-8").read()
+        real = len(text)
+        ok = parts.get(name) == text
+        if not ok:
+            bad.append(f"{rel} 全文快照不一致或缺失（含等长改动）")
+        mt = datetime.datetime.fromtimestamp(os.path.getmtime(fp))
+        if newest is None or mt > newest:
+            newest = mt
+        print(f"{'vg':<5}{real:>12,}{'一致' if ok else '旧了':>12}   {'✓' if ok else '✗ 网页是旧的'}  {name}")
 
     print("-" * 46)
     if newest:
