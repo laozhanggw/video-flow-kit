@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""检查_卡格式.py —— 导入前只读检查卡的格式（不花积分、不改任何文件）
+r"""检查_卡格式.py —— 导入前只读检查卡的格式（不花积分、不改任何文件）
 
 为什么要有这个脚本（2026-11-01）：
     B0018 V02_front_steps 的三条单元卡把「（已有）」写在参考图路径尾巴上，
@@ -8,12 +8,15 @@
     这类错误不会报错，只能靠机器扫。
 
 用法：
-    python 检查_卡格式.py <项目文件夹>
-    python 检查_卡格式.py <项目文件夹> --strict     # 警告也算失败
-    python 检查_卡格式.py <项目文件夹> --quiet      # 只打印问题
+    python 检查_卡格式.py <版本目录>                  # 形如 …\02_复刻\V01_xxx，里面要有 单元\ 或 共用卡制卡词.md
+    python 检查_卡格式.py <版本目录> --strict     # 警告也算失败
+    python 检查_卡格式.py <版本目录> --quiet      # 只打印问题
+
+    正常不用手敲：走总闸门 `Pipeline.py 查 单元 --版本 <版本目录>`，卡格式已并入那一项。
+    传项目总目录（20261028_B0018_ 那一层）会报「不是版本目录」，退出码 2。
 
 退出码：
-    0 = 通过（无 FAIL）    1 = 有 FAIL    2 = 路径不对/不是项目文件夹
+    0 = 通过（无 FAIL）    1 = 有 FAIL    2 = 路径不对/不是版本目录
 """
 import argparse
 import io
@@ -378,7 +381,7 @@ def check_cards(project, rep):
 
 def main():
     ap = argparse.ArgumentParser(description='导入前只读检查卡格式')
-    ap.add_argument('project', help='项目文件夹')
+    ap.add_argument('project', help='版本目录（…\\02_复刻\\V01_xxx，含 单元\\ 或 共用卡制卡词.md）')
     ap.add_argument('--strict', action='store_true', help='警告也算失败')
     ap.add_argument('--quiet', action='store_true', help='只打印问题')
     args = ap.parse_args()
@@ -388,7 +391,7 @@ def main():
         print('不是文件夹：%s' % project)
         return 2
     if not (project / UNIT_DIR).is_dir() and not (project / CARD_FILE).is_file():
-        print('这里既没有 %s 也没有 %s，不是项目文件夹：%s' % (UNIT_DIR, CARD_FILE, project))
+        print('这里既没有 %s 也没有 %s，不是版本目录：%s' % (UNIT_DIR, CARD_FILE, project))
         return 2
 
     rep = Report()

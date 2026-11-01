@@ -2217,7 +2217,7 @@ document.getElementById("btnExport").onclick = ()=>{
   const VG = DATA.vg;
   if(VG && VG.parts && VG.parts.length){
     out.push("\n---\n\n# 附四：VisualGPT 适配写卡格式（图片提示词＋视频提示词）\n");
-    out.push("\n> 让 AI 按这一份写 共用卡制卡词.md 和 单元\\U0N.md。写完用 tools\\检查_卡格式.py 自检。\n");
+    out.push("\n> 让 AI 按这一份写 共用卡制卡词.md 和 单元\\U0N.md。写完跑 tools\\Pipeline.py 查 单元 --版本 <版本目录> 自检（卡格式已并入总闸门）。\n");
     VG.parts.forEach(p=>{
       out.push("\n## "+p.label+"　`"+p.path+"`\n");
       out.push("```markdown\n"+p.text+"\n```\n");

@@ -375,7 +375,7 @@ details[open]>summary::before{content:"▾ "}
   <button class="btn pri" id="btnExport">导出全部为 Markdown</button>
 </header>
 
-<div class="verbar"><span class="vt">生成于 <b>2026-11-01 13:26:49</b></span><span class="vsep"></span><span class="vl">指令字数</span><span class="vc"><b>1</b> 31,577</span><span class="vc"><b>2</b> 27,731</span><span class="vc"><b>3</b> 20,557</span><span class="vc"><b>4</b> 25,475</span><span class="vc"><b>5</b> 35,678</span><span class="vsep"></span><span class="vl">skill 字数</span><span class="vc"><b>s1</b> 4,361</span><span class="vc"><b>s2</b> 4,233</span><span class="vc"><b>s3</b> 10,318</span><span class="vc"><b>s4</b> 2,724</span><span class="vc"><b>s5</b> 6,035</span><span class="vc"><b>s6</b> 14,128</span><span class="vc"><b>s7</b> 5,862</span><span class="vc"><b>s8</b> 6,747</span><span class="grow"></span><span class="vh">页面字数与本机文件不一致，说明没重跑生成器</span></div>
+<div class="verbar"><span class="vt">生成于 <b>2026-11-01 13:28:28</b></span><span class="vsep"></span><span class="vl">指令字数</span><span class="vc"><b>1</b> 31,577</span><span class="vc"><b>2</b> 27,731</span><span class="vc"><b>3</b> 20,557</span><span class="vc"><b>4</b> 25,475</span><span class="vc"><b>5</b> 35,678</span><span class="vsep"></span><span class="vl">skill 字数</span><span class="vc"><b>s1</b> 4,361</span><span class="vc"><b>s2</b> 4,233</span><span class="vc"><b>s3</b> 10,318</span><span class="vc"><b>s4</b> 2,724</span><span class="vc"><b>s5</b> 6,035</span><span class="vc"><b>s6</b> 14,128</span><span class="vc"><b>s7</b> 5,862</span><span class="vc"><b>s8</b> 6,747</span><span class="grow"></span><span class="vh">页面字数与本机文件不一致，说明没重跑生成器</span></div>
 
 <div class="flow" id="flow"></div>
 
@@ -730,7 +730,7 @@ document.getElementById("btnExport").onclick = ()=>{
   const VG = DATA.vg;
   if(VG && VG.parts && VG.parts.length){
     out.push("\n---\n\n# 附四：VisualGPT 适配写卡格式（图片提示词＋视频提示词）\n");
-    out.push("\n> 让 AI 按这一份写 共用卡制卡词.md 和 单元\\U0N.md。写完用 tools\\检查_卡格式.py 自检。\n");
+    out.push("\n> 让 AI 按这一份写 共用卡制卡词.md 和 单元\\U0N.md。写完跑 tools\\Pipeline.py 查 单元 --版本 <版本目录> 自检（卡格式已并入总闸门）。\n");
     VG.parts.forEach(p=>{
       out.push("\n## "+p.label+"　`"+p.path+"`\n");
       out.push("```markdown\n"+p.text+"\n```\n");
