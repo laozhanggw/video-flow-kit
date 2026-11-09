@@ -60,6 +60,15 @@ REF_FILES = [
 VG_TXT = "5B_写卡格式_通用.txt"
 VG_MD = "skills/adaptive-video-production/references/生产单元_写卡格式_v1.md"
 
+# 网页「② 复刻 · 对账指令」按钮装的快照（生成器 AUDIT_FILES）。
+# 三份都要逐字比：对账指令改了不重跑，人粘到的就是旧判据。
+# 2026-11-02 之前这里没查，2B 新增当天就发现「检查说已同步、其实没验过」。
+AUDIT_FILES = [
+    ("2B", "2B_复刻对账_通用.txt", "tpl"),
+    ("32", "32_废动作怎么防_阿初的判据_20261027.md", "base"),
+    ("20", "20_读到的证明_抽查机制.md", "base"),
+]
+
 # 网页「八、skill 全文」那一节内嵌的快照，顺序必须和 生成流程导图.py 的 SKILL_FILES 一致
 SKILL_FILES = [
     ("s1", "benchmark-select-and-breakdown/SKILL.md"),
@@ -237,6 +246,29 @@ def main():
         if newest is None or mt > newest:
             newest = mt
         print(f"{'vg':<5}{real:>12,}{'一致' if ok else '旧了':>12}   {'✓' if ok else '✗ 网页是旧的'}  {name}")
+
+    # ── 复刻对账包（audit）：2026-11-02 新增的那个橙色按钮。
+    #    它装着对账指令 ＋ 32／20 号判据原文，三份都得比，否则改了没人发现。
+    aud = snapshot.get("audit") if isinstance(snapshot.get("audit"), dict) else {}
+    aud_parts = {os.path.basename(p.get("path", "")): p.get("text")
+                 for p in (aud.get("parts") or []) if isinstance(p, dict)}
+    for key, rel, root_key in AUDIT_FILES:
+        root = tpl if root_key == "tpl" else base
+        fp = os.path.join(root, *rel.split("/"))
+        name = os.path.basename(rel)
+        if not os.path.exists(fp):
+            print(f"{key:<5}{'缺文件':>12}{'-':>12}   ✗")
+            bad.append(f"{rel} 不存在")
+            continue
+        text = io.open(fp, encoding="utf-8").read()
+        real = len(text)
+        ok = aud_parts.get(name) == text
+        if not ok:
+            bad.append(f"{rel} 对账包快照不一致或缺失（含等长改动）")
+        mt = datetime.datetime.fromtimestamp(os.path.getmtime(fp))
+        if newest is None or mt > newest:
+            newest = mt
+        print(f"{key:<5}{real:>12,}{'一致' if ok else '旧了':>12}   {'✓' if ok else '✗ 网页是旧的'}  {name}")
 
     print("-" * 46)
     if newest:

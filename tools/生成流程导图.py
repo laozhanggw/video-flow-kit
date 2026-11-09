@@ -61,6 +61,15 @@ VG_FILES = [
     (os.path.join(SKILL_DIR, "adaptive-video-production", "references", "生产单元_写卡格式_v1.md"),
      "写卡格式·全文与示例"),
 ]
+# 复刻对账包（2026-11-02）：② 复刻 交出中间过程稿之前，AI 先自己对一遍账。
+# 网页上单独一个按钮，点一次拿到「对账指令 ＋ 两份判据原文」。
+# 判据必须内嵌——A1 铁律：网页发给别的 AI，对方读不到本机 E: 盘，只写文件名等于断链。
+# 缺任何一份就停止生成：按钮点开是半份东西，比没有按钮更坏。
+AUDIT_FILES = [
+    (os.path.join(TPL, "2B_复刻对账_通用.txt"), "复刻对账·通用指令"),
+    (os.path.join(BASE, "32_废动作怎么防_阿初的判据_20261027.md"), "判据原文·废动作怎么防（32号）"),
+    (os.path.join(BASE, "20_读到的证明_抽查机制.md"), "机器版抽查·读到的证明（20号）"),
+]
 
 # ────────────────────────────────────────────────────────────
 # 节点内容
@@ -351,6 +360,23 @@ NODES = [
                     "人点头之前：不写版本设定书、不建 V 文件夹、不开始写开头。",
                 ],
                 "children": [
+                    {
+                        "id": "d1-2-0",
+                        "title": "出门前对账：先举证，再交稿",
+                        "tag": "2026-11-02 新增",
+                        "summary": "AI 太擅长忘事。交稿前先停手，用出处回答一句：真看了对标、真照 skill 做了吗？",
+                        "points": [
+                            "按钮在右边「② 复刻 · 完整指令」旁边，橙色那个：点一次拿到对账指令 ＋ 32／20 号判据原文，合计约 6 千字。",
+                            "它对的是账，不是新活：只交一张表（核对项｜出处｜判定｜错在哪），表后三行（错几项／哪几项没法验证、为什么／这份稿能不能往下走）。",
+                            "给不出出处的直接写「没做」；不许写「符合」「已阅读」「无问题」「整体良好」「本阶段不涉及」。",
+                            "三条补充专堵糊弄：同一条出处引到第 4 条就作废（防凑出处）、判定只许「对／错／没做」（防加第四种）、与 20 号不一致时以 20 号为准（防两套标准）。",
+                        ],
+                        "pitfalls": [
+                            "让它「自查」而不是「对账」—— 自查会被答成「已自检，无问题」，对账必须落到出处。",
+                            "只贴对账指令、不贴判据原文 —— 对方读不到 32 号，就会自己发明标准。",
+                        ],
+                        "note": "判据原文内嵌在按钮里，不在本机路径。发给别的 AI 也能逐条对。",
+                    },
                     {
                         "id": "d1-2-1",
                         "title": "为什么要有中间过程稿这一层",
@@ -1580,6 +1606,30 @@ def load_vg():
     return {"text": head + "".join(chunks), "parts": parts}
 
 
+def load_audit():
+    """② 复刻对账包：对账指令 ＋ 两份判据原文。
+
+    和 vg 同构（text 供一键复制，parts 供同步检查逐份比对）。
+    第三份是 20 号：它已经给了机器判据，人工版不能和它各写一套。
+    """
+    parts, chunks = [], []
+    for path, label in AUDIT_FILES:
+        if not os.path.exists(path):
+            raise FileNotFoundError("缺复刻对账文件：" + path)
+        rel = os.path.relpath(path, BASE).replace("\\", "/")
+        text = io.open(path, encoding="utf-8").read()
+        parts.append({"label": label, "path": rel, "text": text})
+        chunks.append("\n\n===== %s　%s =====\n\n%s" % (label, rel, text))
+    head = ("【复刻对账｜② 复刻专用】\n"
+            "收到后按三步做，不要只回复「收到」：\n"
+            "1. 第一句先答：你真看了对标、真照 skill 做了吗？一句话，带出处；\n"
+            "2. 再按 一、读没读／二、照没照／三、有没有自己编／四、怎么交 逐条对，只交一张表；\n"
+            "3. 表后三行照写：错了几项／哪几项没法验证、为什么／这份稿能不能往下走。\n"
+            "下面第二、三份是判据原文（32 号、20 号），逐条对照用，不要另立标准。\n"
+            "（人看这一行：点按钮复制全文，粘给刚做完 ② 的 AI；它必须先答第一句，再交表。）\n")
+    return {"text": head + "".join(chunks), "parts": parts}
+
+
 def distribution_nodes(value):
     """节点文案使用当前配置根；不把配置前的作者地址带回网页。"""
     if isinstance(value, list):
@@ -1620,9 +1670,11 @@ def build():
     rules = load_rules()
     refs = load_ref_files()
     vg = load_vg()
+    audit = load_audit()
     maintenance = load_maintenance()
     payload = json.dumps({"nodes": distribution_nodes(NODES), "instr": instr, "skills": skills,
-                          "rules": rules, "refs": refs, "vg": vg, "maintenance": maintenance},
+                          "rules": rules, "refs": refs, "vg": vg, "audit": audit,
+                          "maintenance": maintenance},
                          ensure_ascii=False).replace("</", "<\\/")
     html = HTML_TEMPLATE.replace("/*__DATA__*/", "const DATA = " + payload + ";")
     # 无脚本阅读器和其他AI也能直接读取规则，不必执行页面JavaScript。
@@ -1643,14 +1695,17 @@ def build():
         '<span class="vc"><b>s{}</b> {:,}</span>'.format(i + 1, len(v["text"]))
         for i, (k, v) in enumerate(skills.items())
     )
+    audit_cells = '<span class="vc"><b>2B</b> {:,}</span>'.format(len(audit["parts"][0]["text"]))
     ver = ('<span class="vt">生成于 <b>{s}</b></span>'
            '<span class="vsep"></span>'
            '<span class="vl">指令字数</span>{c}'
            '<span class="vsep"></span>'
            '<span class="vl">skill 字数</span>{sc}'
+           '<span class="vsep"></span>'
+           '<span class="vl">对账</span>{ac}'
            '<span class="grow"></span>'
            '<span class="vh">页面字数与本机文件不一致，说明没重跑生成器</span>'
-           ).format(s=stamp, c=cells, sc=sk_cells)
+           ).format(s=stamp, c=cells, sc=sk_cells, ac=audit_cells)
     html = html.replace("<!--__VER__-->", ver)
 
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(html)
@@ -1658,6 +1713,8 @@ def build():
     print("生成时间:", stamp)
     print("指令文件:", ", ".join(f"{k}={len(v)}字" for k, v in instr.items()))
     print("skill 文件:", ", ".join(f"{k}={len(v['text'])}字" for k, v in skills.items()))
+    print("对账包:", ", ".join(f"{p['label']}={len(p['text'])}字" for p in audit["parts"]),
+          "→ 合计", len(audit["text"]), "字")
 
 
 HTML_TEMPLATE = r"""<!DOCTYPE html>
@@ -1718,6 +1775,8 @@ header .sub{font-size:12px;color:var(--tx3);margin-left:2px}
 .btn.pri:hover{background:#1d4ed8;color:#fff}
 .btn.vg{border-color:#7c3aed;color:#6d28d9;background:#f5f3ff;font-weight:600}
 .btn.vg:hover{border-color:#6d28d9;color:#5b21b6;background:#ede9fe}
+.btn.aud{border-color:#f59e0b;color:#92400e;background:#fffbeb;font-weight:600}
+.btn.aud:hover{border-color:#b45309;color:#7c2d12;background:#fef3c7}
 /* ── 阶段条 ── */
 .flow{
   flex:0 0 auto;background:var(--panel);border-bottom:1px solid var(--line);
@@ -1861,6 +1920,11 @@ details[open]>summary::before{content:"▾ "}
   <button class="btn" id="btnCollapse">全部收起</button>
   <button class="btn pri" id="btnExport">导出全部为 Markdown</button>
 </header>
+<div style="flex:0 0 auto;background:#fffbeb;border-bottom:1px solid #fde68a;padding:10px 18px;font-size:12.5px;line-height:1.8;color:#7c2d12">
+<b>这套流程怎么用（每个接手的人先读这一段）</b><br>
+用户的工作方式是<b>一个对话框只干一段</b>——不是习惯，是被逼的：AI 在长对话里会遗忘、会跑偏、会自己编。所以：<b>记忆不在聊天里，在文件里。</b>换窗口 = 换一个失忆的人，它只看得见你给它的文件。<br>
+<b>三条铁律</b>：① 每段只读指令里点名的那几份文件，别的文档一律不翻；② 交完立刻跑闸门，退出码 0 才算交完，FAIL 就停在原地修；③ 文件里没写的等于不存在，文件里写歪的下一段会照着歪——发现上游字段错，回上游改，不许在下游补。
+</div>
 
 <div class="verbar"><!--__VER__--></div>
 
@@ -2055,6 +2119,10 @@ function renderView(){
       h += '<button class="btn vg" onclick="copyVG()" title="图片提示词＋视频提示词的骨架、头部字段、路径写法，一次粘给写卡 AI">'+
            '复制 VisualGPT 适配写卡指令（'+DATA.vg.text.length+' 字）</button>';
     }
+    if(ik === '2' && DATA.audit && DATA.audit.text){
+      h += '<button class="btn aud" onclick="copyAudit()" title="先停手，只用出处回答：真看了对标、真照 skill 做了吗？只交一张核对表，附 32／20 号判据原文">'+
+           '② 复刻 · 对账指令（'+DATA.audit.text.length+' 字）</button>';
+    }
     h += '</div>';
   }
 
@@ -2134,6 +2202,11 @@ function copyVG(){
   const V = DATA.vg;
   if(!V || !V.text){ toast("没有写卡格式包"); return; }
   copyText(V.text);
+}
+function copyAudit(){
+  const A = DATA.audit;
+  if(!A || !A.text){ toast("没有复刻对账包"); return; }
+  copyText(A.text);
 }
 function copyRules(){
   const R = DATA.rules||{};

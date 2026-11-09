@@ -433,9 +433,13 @@ def check_board(path: Path, base=None, tol=1.2):
 
     print("  " + "-" * 60)
     print(f"  合计 {len(rows)} 刀 / {tot_s:.2f} 秒 / {tot_a} 个动作句")
-    if base:
+    if base and base.get("rate"):
         print(f"  原片基准 {base['steps']} 个动作 / {base['sec']} 秒 = {base['rate']} 步/秒")
         print(f"  本版 {avg:.2f} 步/秒，是原片的 {avg/base['rate']:.1f} 倍")
+    elif base:
+        # 2026-11-02 修：拆解逐段表首列写作「段 2」，ROW_RE 认不出 → 基准 0 段 0 秒，
+        # 原来在这里除零崩掉（退出码 1，看起来像"分镜不过"，实际是基准没读到）。
+        print("  ⚠ 原片基准读不到有效时长（拆解首列不是纯数字），本次不判密度，只查结构与字数")
 
     ok = True
     if over:
