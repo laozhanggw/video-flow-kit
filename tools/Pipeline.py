@@ -29,6 +29,7 @@
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 
@@ -60,6 +61,24 @@ ENG = {
 }
 
 STAGES = ['拆解', '设定书', '开头', '分镜', '单元', '成片', '全部']
+def missing_seams(ver):
+    r"""2026-11-12 加：生成过 U0N.mp4 就必须有 _验收\接缝_U0(N-1)_U0N.png。
+    没有这张图，剪的时候没人看得出"池子/房子/栅栏/人"是不是同一个。"""
+    gen = os.path.join(ver, '生成')
+    if not os.path.isdir(gen):
+        return []
+    units = set()
+    for n in os.listdir(gen):
+        m = re.match(r'(U\d+)_v\d+\.mp4$', n)
+        if m:
+            units.add(m.group(1))
+    units = sorted(units)
+    acc = os.path.join(ver, '_验收')
+    miss = []
+    for x, y in zip(units, units[1:]):
+        if not os.path.exists(os.path.join(acc, '接缝_%s_%s.png' % (x, y))):
+            miss.append('%s→%s' % (x, y))
+    return miss
 
 MAP = """
 ╔══════════════════════════════════════════════════════════════════════════╗
@@ -331,6 +350,11 @@ def do_check(a):
         if v:
             args += ['--version-dir', v]
         add('成片-结尾', run('结尾', args))
+        if v:
+            _miss = missing_seams(v)
+            if _miss:
+                LOGS.append(('接缝', 1, '缺接缝对比图：' + '、'.join(_miss) + '（跑 tools\\接缝比对.py --version <版本目录>）'))
+                add('接缝', 1)
 
     if not results:
         print('\n  这次没有可查的东西——参数没给全。\n')

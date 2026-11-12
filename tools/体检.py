@@ -147,6 +147,20 @@ def find_project(start):
     return None
 
 
+def missing_seams(ver):
+    r"""2026-11-12 加：有 生成\U0N.mp4 就必须有 _验收\接缝_U0(N-1)_U0N.png。"""
+    gen = os.path.join(ver, "生成")
+    if not os.path.isdir(gen):
+        return []
+    units = set()
+    for n in os.listdir(gen):
+        m = re.match(r"(U\d+)_v\d+\.mp4$", n)
+        if m:
+            units.add(m.group(1))
+    units = sorted(units)
+    acc = os.path.join(ver, "_验收")
+    return ["%s→%s" % (x, y) for x, y in zip(units, units[1:])
+            if not os.path.exists(os.path.join(acc, "接缝_%s_%s.png" % (x, y)))]
 def resolve(path):
     """解析成：版本目录、拆解目录、基准文件、成片（新结构优先，旧结构兜底）"""
     path = path.strip().strip('"').strip("'")
@@ -194,6 +208,13 @@ def resolve(path):
             if hit:
                 video = sorted(hit)[0]
                 break
+    if not video:
+        # 2026-11-12 加：成片常被放进子文件夹（例：V01_farm\He Splashed ...\xxx.mp4）。
+        # 只往下扫一层，并排除 生成\（那是单元片段，不是成片）和 _验收\。
+        cands = [x for x in glob.glob(os.path.join(ver, "*", "*.mp4"))
+                 if os.sep + "生成" + os.sep not in x and os.sep + "_验收" + os.sep not in x]
+        if cands:
+            video = sorted(cands)[0]
     if not video and project:
         hit = glob.glob(os.path.join(project, "03_成片", "*.mp4"))
         if hit:
@@ -227,6 +248,11 @@ def main():
 
     if video:
         rc, out, log = run(["查", "成片", "--视频", video])
+        # 2026-11-12 加：接缝对比图缺一张，⑥ 就判不过（剪之前必须看过这四样）
+        miss_seam = missing_seams(ver)
+        if rc == 0 and miss_seam:
+            rc = 1
+            out += "\n缺接缝对比图：" + "、".join(miss_seam) + "（跑 tools\\接缝比对.py --version）"
         checks.append(("⑥ 成片", rc, out, log, ""))
     else:
         checks.append(("⑥ 成片", 2, "还没有生成成片", "", ""))

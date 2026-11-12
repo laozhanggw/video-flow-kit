@@ -187,11 +187,11 @@ def check_required_fields(text):
 
 
 def check_shot_length_floor(text, total_seconds):
-    """⑤ 每刀不低于 1.2 秒（动作切片下限）"""
+    """⑤ 每刀不低于 1.0 秒（绝对下限；分类型给秒见 material-seconds.md 表 A）"""
     shots = SHOT_RE.findall(text)
-    short = [(s[0], s[1]) for s in shots if float(s[1]) < 1.2]
+    short = [(s[0], s[1]) for s in shots if float(s[1]) < 1.0]
     if short:
-        return False, "这些刀低于 1.2 秒下限：%s" % "、".join(
+        return False, "这些刀低于 1.0 秒绝对下限：%s" % "、".join(
             "镜头%s=%.1f" % (i, float(v)) for i, v in short)
     if shots:
         avg = sum(float(s[1]) for s in shots) / len(shots)
@@ -221,7 +221,7 @@ def main():
     results = []
     results.append(("① 生成秒是整数",) + check_int_seconds(text, a.seconds))
     results.append(("② 镜头秒数合计 = 生成秒",) + check_shots_sum(text, total))
-    results.append(("③ 每刀 ≥1.2 秒",) + check_shot_length_floor(text, total))
+    results.append(("③ 每刀 ≥1.0 秒（绝对下限）",) + check_shot_length_floor(text, total))
     ok3, msg3 = check_words(text)
     results.append(("④ 无确认手势 / 无准备动作", ok3, msg3))
     ok4, msg4 = check_required_fields(text)

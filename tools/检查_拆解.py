@@ -255,6 +255,23 @@ def main():
                  'T_钩 ÷ 0.2，且 ≥15', ok9,
                  'T_钩 写在 02_开头拆解.md 开头一行；微段表一格不许合并'))
 
+    # 10 T 有没有人拍板（2026-11-12 加）
+    #    规则：开头圈到第几秒必须人定，写进 02_开头拆解.md 第一行并标【人工确认】。
+    #    写「候选／待人工／待人圈定」＝没定，②A 不许开工。
+    #    老项目（文件夹日期 < 20261112）豁免，避免回头把已交付的批次判红。
+    head = t_head[:3000]
+    pending = re.search(r'候选|待人工|待人圈定|待人确认|待确认', head)
+    confirmed = ('人工确认' in head)
+    dm = re.search(r'(20\d{6})', a.repo or '')
+    old_proj = bool(dm) and dm.group(1) < '20261112'
+    if old_proj:
+        rows.append(('T 人工确认', '老项目未标注', '不强制', True,
+                     '文件夹日期早于 2026-11-12，按老规矩放行'))
+    else:
+        okT = confirmed and not pending
+        rows.append(('T 人工确认', '已确认' if okT else ('待人工：' + pending.group(0) if pending else '没标'),
+                     '第一行带【人工确认】', bool(okT),
+                     '开头圈到第几秒必须人拍板；写「候选／待确认」＝没定，②A 不许开工'))
     # 打印
     W = 82
     print('=' * W)

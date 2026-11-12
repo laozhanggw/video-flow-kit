@@ -190,6 +190,11 @@ def stage_b(d: Path, baseline: dict | None):
     check("b", "十节齐全（含 4.5）", not miss,
           ("缺 " + "、".join(miss)) if miss else f"{len(heads)} 节")
 
+    # 场景不变项（2026-11-12 加）：缺了 ④⑤ 会把院子每盒重画一遍。老项目只提示，不判死。
+    has_c9 = "场景不变项" in t
+    check("b", "第 6 节场景不变项（8–10 条）", has_c9,
+          "有" if has_c9 else "缺：新项目必须补（房子/栅栏/地面/朝向/池子长宽深）；老项目可跳过",
+          level="warn")
     # 4.5 表
     m = re.search(r"^#{1,4}\s*4\.5[^\n]*", t, re.M)
     if not m:
@@ -493,6 +498,15 @@ def stage_e(d: Path, baseline: dict | None):
         return
     f = cands[0]
     t = read(f)
+
+    # 地方卡两张（2026-11-12 加）：共用卡只有人和道具时，每盒会各自重画一个院子。
+    card = d / "共用卡制卡词.md"
+    if card.exists():
+        ct = read(card)
+        miss_card = [n for n in ("场景平面图", "场景实景卡") if n not in ct]
+        check("e", "地方卡两张（平面图＋实景卡）", not miss_card,
+              "齐" if not miss_card else "缺：" + "、".join(miss_card) + "（老项目可跳过）",
+              level="warn")
 
     tab = None
     for h, rows in md_tables(t):
