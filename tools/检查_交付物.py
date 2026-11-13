@@ -195,6 +195,51 @@ def stage_b(d: Path, baseline: dict | None):
     check("b", "第 6 节场景不变项（8–10 条）", has_c9,
           "有" if has_c9 else "缺：新项目必须补（房子/栅栏/地面/朝向/池子长宽深）；老项目可跳过",
           level="warn")
+    # ── 终局卡（2026-11-12 加）② 必交「改造完什么样」 ─────────────────────
+    # 为什么加：B0026 的 V01 全流程绿灯、成片是半成品（8 盏灯→2 盏、6 把椅→2 把、
+    # 成片植株→18 株小苗、弧形宽花坛→2 尺直条）。根子是流程只量了「乱」，没量「漂亮」。
+    # 这一项只查「尺子存不存在、数有没有」，判断漂亮与否仍归人。
+    fz = d / "00_终局卡.md"
+    if not fz.exists():
+        rec("b", "终局卡", "warn", "缺 00_终局卡.md")
+        print(f"    {WARN} 00_终局卡.md —— 缺（2026-11-12 起 ② 必交；老项目可跳过）")
+    else:
+        tz = read(fz)
+        tabs = md_tables(tz)
+        check("b", "终局卡四件套（几个／多大／材质／成熟度）",
+              "四件套" in tz and "材质" in tz,
+              "有" if ("四件套" in tz and "材质" in tz) else
+              "缺：每件成品要写清几个／多大／什么材质／什么成熟度", level="warn")
+        vague = sorted({w for w in ("约", "大概", "一些", "若干", "同原片") if w in tz})
+        check("b", "终局卡不许写模糊词", not vague,
+              ("出现：" + "、".join(vague)) if vague else "无", level="warn")
+        ratios = []
+        for h, rows in tabs:
+            idx = next((i for i, c in enumerate(h) if "比值" in c), None)
+            if idx is None:
+                continue
+            for r in rows:
+                if idx < len(r):
+                    m = re.search(r"(\d+(?:\.\d+)?)", r[idx])
+                    if m:
+                        ratios.append(float(m.group(1)))
+        if ratios:
+            check("b", "终局卡量级比值 ≥0.8", min(ratios) >= 0.8,
+                  f"最低 {min(ratios):.2f}（{len(ratios)} 行）；<0.8 = 降级，必须报人签", level="warn")
+        else:
+            check("b", "终局卡量级对账（比值列）", False,
+                  "没找到含「比值」的列：要对账表逐行写「原片／我们／比值」", level="warn")
+        for nm, lb in (("00_终局卡_完工.png", "完工全景"),
+                       ("00_终局卡_细节.png", "细节"),
+                       ("00_终局卡_并排.png", "改造前↔改造后并排")):
+            ok = (d / nm).exists()
+            check("b", f"终局图·{lb}", ok,
+                  nm if ok else "缺这张图（未出图要在 00_终局卡.md 标「未出图」并报 BLOCKED）",
+                  level="warn")
+        if "一进一出" not in tz:
+            rec("b", "终局卡一进一出", "warn", "缺")
+            print(f"    {WARN} 终局卡末尾缺「一进一出」三句（取代哪条／什么时候不适用／谁签）")
+
     # 4.5 表
     m = re.search(r"^#{1,4}\s*4\.5[^\n]*", t, re.M)
     if not m:
@@ -461,6 +506,13 @@ def stage_d(d: Path, baseline: dict | None, tool: Path | None):
     check("d", "每刀都写了动作数", n_decl >= len(clips) * 0.9,
           f"{n_decl}/{len(clips)} 刀有", level="warn" if n_decl else "error")
 
+    # ── 保留类 ⚠️（2026-11-13 加）─────────────────────────────
+    # 为什么查：B0026 的 V01 每刀只写"一个动作"，成片是"做一下→切→全好了"。
+    # 拍子那条只在 ⑤ 查（④ 的 ①②③ 也用来给字段编号，数不准）。
+    hold = len(re.findall(r"⚠️[^\n]{0,80}(还[剩在]|没干完|没到头|仍在|尚未)", t))
+    check("d", "每刀有保留类 ⚠️（还没干完）", hold >= max(1, len(clips) // 2),
+          f"{hold} 条（至少要 {max(1, len(clips) // 2)}）", level="warn")
+
     # 禁止词
     # 只判真正的占位符。「同上」在「同上一镜延续」里是正常描述，「略」在「略高于」里也是正常的，
     # 所以这两种只在括号里 / 独立成句时才算占位。
@@ -508,6 +560,15 @@ def stage_e(d: Path, baseline: dict | None):
               "齐" if not miss_card else "缺：" + "、".join(miss_card) + "（老项目可跳过）",
               level="warn")
 
+        # 撞号（2026-11-13 加）：同一个 RC 号指两样东西，下游就不知道该借哪张。
+        # B0026 就是 RC01 同时指"主角"和"场景平面图"，④⑤ 一直在猜。
+        seen = {}
+        for m in re.finditer(r"^#{1,4}\s*(RC\d{2})\s*[｜|:：]\s*(.+)$", ct, re.M):
+            seen.setdefault(m.group(1), set()).add(m.group(2).strip()[:12])
+        clash = [f"{k}＝{'／'.join(sorted(v))}" for k, v in seen.items() if len(v) > 1]
+        check("e", "RC 图号不撞号", not clash,
+              ("撞号：" + "；".join(clash[:3])) if clash else f"{len(seen)} 个图号", level="warn")
+
     tab = None
     for h, rows in md_tables(t):
         j = "|".join(h)
@@ -529,6 +590,29 @@ def stage_e(d: Path, baseline: dict | None):
               f"不在表头，在逐 U 键值表里（{n_unit} 份都有）")
     else:
         check("e", "动作预算三列", False, "缺 " + "、".join(miss))
+
+    # ── 图片划分（2026-11-12 加）────────────────────────────────────
+    # 以前第一段只报单元表，图要人另外问一句"图呢"；漏一张图 = 下游各画一个院子。
+    has_ref = any("参考图" in c for c in h)
+    check("e", "单元表有「本单元参考图」列", has_ref,
+          "有" if has_ref else "缺这一列：每盒要传哪几张卡（RC 编号＋比例）", level="warn")
+    plan = d / "说明" / "生产总图_图片与单元关系.md"
+    check("e", "图片与单元关系表", plan.exists(),
+          "有" if plan.exists() else
+          "缺 说明\\生产总图_图片与单元关系.md（图种／比例／父图／给哪几盒）", level="warn")
+
+    # ── 拍子与保留类 ⚠️（2026-11-13 加，跟 ④ 同一套口径）──────────────
+    # U01 是 ③ 独占的开头卡（一镜到底，拍子由 ③ 定，⑤ 只读不写）→ 不参加拍子检查。
+    cards = sorted((d / "单元").glob("U*.md")) if (d / "单元").is_dir() else []
+    if cards:
+        beat_cards = [c for c in cards if c.stem.upper() != "U01"]
+        no_beat = [c.name for c in beat_cards if len(re.findall(r"[①②③④⑤⑥]", read(c))) < 2]
+        no_hold = [c.name for c in cards
+                   if not re.search(r"⚠️[^\n]{0,80}(还[剩在]|没干完|没到头|仍在|尚未)", read(c))]
+        check("e", "每张单元卡有 2–6 拍", not no_beat,
+              ("缺拍子：" + "、".join(no_beat[:4])) if no_beat else f"{len(beat_cards)} 张都有", level="warn")
+        check("e", "每张单元卡有保留类 ⚠️", not no_hold,
+              ("缺保留类：" + "、".join(no_hold[:4])) if no_hold else f"{len(cards)} 张都有", level="warn")
 
     # 地板算术
     m = re.search(r"生成预算[^\n]*?([\d.]+)\s*秒", t)
